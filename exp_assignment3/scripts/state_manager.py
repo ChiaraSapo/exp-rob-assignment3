@@ -291,12 +291,15 @@ class MIRO_Sleep(smach.State):
         smach.State.__init__(self,
                              outcomes=['normal_command'])
 
-    # Smach machine state sleep actions:
-    # Calls dog() function to move towards the kennel, waits some seconds and exits state.
-    # @return c: command to switch between states.
+    # Go to kennel
+    # Stay still for 3 seconds
+    # Exit NORMAL
+
     def execute(self, userdata):
         time.sleep(3)
         return 'normal_command'
+
+
 # Normal state of the smach machine.
 
 
@@ -308,13 +311,15 @@ class MIRO_Normal(smach.State):
         smach.State.__init__(self,
                              outcomes=['sleep_command', 'play_command', 'n_track_command'])
 
-    # Smach machine state normal actions:
     # In a loop:
-    # Calls move_dog() function to go to a random position, then subscribes to the camera image. It reads
-    # the ball ros parameter: if it's set to 2 it waits. If it's set to 0, it moves the robot to another
-    # random position. If it's set to 1 it switches to play state.
-    # At the end of the loop: it switches to sleep state.
-    # @return c: command to switch between states.
+    # Listen to human: play command?
+    # - Yes: exit PLAY
+    # - No: Continue
+    # Move around: ball?
+    # - Yes: exit N_TRACK
+    # - No: Continue
+    # End of the loop: exit SLEEP
+
     def execute(self, userdata):
         time.sleep(2)
         return random.choice(['sleep_command', 'play_command', 'n_track_command'])
@@ -327,6 +332,11 @@ class N_Track(smach.State):
 
         smach.State.__init__(self,
                              outcomes=['normal_command'])
+
+    # Go close to the ball: did you know its position yet?
+    # - Yes: continue
+    # - No: save it
+    # Exit NORMAL
 
     def execute(self, userdata):
         time.sleep(2)
@@ -347,15 +357,18 @@ class MIRO_Play(smach.State):
         self.camera_pub = rospy.Publisher("/robot/joint_position_controller/command",
                                           Float64, queue_size=1)
 
-    # Smach machine state play actions: find and follow the ball.
-    # If robot reaches the ball and stops: rotate camera.
-    # If robot can not see ball for a while (counter=MAX_COUNTER): switch to normal state.
-    # @return c: command to switch between states.
+    # In a loop:
+    # Go to human
+    # Wait for a goto command
+    # Compare command to the known ball positions: is position known?
+    # - Yes: go to position
+    # - No: exit FIND
+    # Wait to be arrived
+    # End of the loop: exit NORMAL
+
     def execute(self, userdata):
         time.sleep(2)
         return random.choice(['find_command', 'normal_command'])
-        # Ros node that implements a state machine with three states: sleep, play, normal.
-        # It also initializes the ball and counter parameters.
 
 
 class MIRO_Find(smach.State):
@@ -366,6 +379,11 @@ class MIRO_Find(smach.State):
         smach.State.__init__(self,
                              outcomes=['play_command', 'f_track_command'])
 
+    # In a loop:
+    # Move towards goal (may change it): ball?
+    # - Yes: exit F_TRACK
+    # - No: continue
+    # End of the loop: exit PLAY
     def execute(self, userdata):
         time.sleep(2)
         return random.choice(['f_track_command', 'play_command'])
@@ -378,6 +396,10 @@ class F_Track(smach.State):
 
         smach.State.__init__(self,
                              outcomes=['find_command', 'play_command'])
+
+    # Go close to the ball: is it the desired position? (no need to check if saved: u enter here only if it's not)
+    # - Yes: exit PLAY
+    # - No: exit FIND
 
     def execute(self, userdata):
         time.sleep(2)
