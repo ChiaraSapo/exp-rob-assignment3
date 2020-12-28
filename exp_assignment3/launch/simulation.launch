@@ -47,4 +47,22 @@
   <node name="urdf_spawner_human1" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
         args="-urdf -model human1 -param human_description1 -x -6 -y 8.5 -z 0.34 -R 0 -P 0 -Y -0.75"/>
 
+
+ <arg name="ns1" value="robot"/>
+  <param name="$(arg ns1)/robot_description" 
+	 command="$(find xacro)/xacro --inorder $(find exp_assignment3)/urdf/robot.xacro" />
+	
+
+ <group ns="$(arg ns1)">
+  	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+	args="-urdf -model $(arg ns1) -param robot_description -x -5 -y 8 -z 0 -R 0 -P 0 -Y -1.57"/>
+
+  </group>
+
+
+
+  
+
+
+
 </launch>
