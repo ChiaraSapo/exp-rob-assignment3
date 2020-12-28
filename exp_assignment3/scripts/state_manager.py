@@ -18,6 +18,49 @@
 # If robot doesn't find the ball for a while, go back to Play state in any case and back to human.
 # Also switch from play to normal and vice versa randomly.
 
+# SLEEP
+# Go to kennel
+# Stay still for 3 seconds
+# Exit NORMAL
+
+# NORMAL
+# In a loop:
+# Listen to human: play command?
+# - Yes: exit PLAY
+# - No: Continue
+# Move around: ball?
+# - Yes: exit N_TRACK
+# - No: Continue
+# End of the loop: exit SLEEP
+
+# N_TRACK
+# Go close to the ball: did you know its position yet?
+# - Yes: continue
+# - No: save it
+# Exit NORMAL
+
+# PLAY
+# In a loop:
+# Go to human
+# Wait for a goto command
+# Compare command to the known ball positions: is position known?
+# - Yes: go to position
+# - No: exit FIND
+# Wait to be arrived
+# End of the loop: exit NORMAL
+
+# FIND
+# In a loop:
+# Move towards goal (may change it): ball?
+# - Yes: exit F_TRACK
+# - No: continue
+# End of the loop: exit PLAY
+
+# F_TRACK
+# Go close to the ball: is it the desired position? (no need to check if saved: u enter here only if it's not)
+# - Yes: exit PLAY
+# - No: exit FIND
+
 import roslib
 import rospy
 import smach
