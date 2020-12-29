@@ -41,6 +41,10 @@
   <group if="$(arg gui)">
     <node name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen"/>
   </group>
+
+
+
+
   
    <param name="human_description1" textfile="$(find exp_assignment3)/urdf/human.urdf" />
       
@@ -48,18 +52,23 @@
         args="-urdf -model human1 -param human_description1 -x -6 -y 8.5 -z 0.34 -R 0 -P 0 -Y -0.75"/>
 
 
- <arg name="ns1" value="robot"/>
-  <param name="$(arg ns1)/robot_description" 
+
+
+
+  <param name="robot_description" 
 	 command="$(find xacro)/xacro --inorder $(find exp_assignment3)/urdf/robot.xacro" />
 	
 
- <group ns="$(arg ns1)">
   	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-	args="-urdf -model $(arg ns1) -param robot_description -x -5 -y 8 -z 0 -R 0 -P 0 -Y -1.57"/>
-
-  </group>
+	args="-urdf -model robot_desription -param robot_description -x -5 -y 8 -z 0 -R 0 -P 0 -Y -1.57"/>
 
 
+
+
+    <param name="use_gui" value="False"/>
+   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ></node>
+   <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" /> 
+   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find exp_assignment3)/config/sim2.rviz" />
 
   
 

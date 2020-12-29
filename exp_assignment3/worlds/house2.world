@@ -2017,10 +2017,10 @@
             </sphere>
           </geometry>
           <material>
-            <script>
-              <name>Gazebo/Orange</name>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-            </script>
+            <ambient>1.0 0.0 1.0 1.0</ambient>  
+      	    <diffuse>1.0 0.0 1.0 1.0</diffuse>  
+            <specular>0.508273 0.508273 0.508273 1.0</specular>  
+            <emissive>0.0 0.0 0.0 0.0</emissive>
           </material>
         </visual>
         <self_collide>0</self_collide>

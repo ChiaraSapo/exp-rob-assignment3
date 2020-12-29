@@ -84,7 +84,244 @@ global subscriberPLAY
 
 # Publisher
 
-vel_pub = rospy.Publisher("/robot/cmd_vel", Twist, queue_size=1)
+vel_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=1)
+
+blackLower = (0, 0, 0)
+blackUpper = (5, 50, 50)
+redLower = (0, 50, 50)
+redUpper = (5, 255, 255)
+yellowLower = (25, 50, 50)
+yellowUpper = (35, 255, 255)
+greenLower = (50, 50, 50)
+greenUpper = (70, 255, 255)
+blueLower = (100, 50, 50)
+blueUpper = (130, 255, 255)
+magentaLower = (125, 50, 50)
+magentaUpper = (150, 255, 255)
+
+
+# Simulates the user's voice commands.
+# @param stateCalling: which state the robot is in
+# @return userVoice: user command
+def user_says(stateCalling):
+
+    comm = "go to %d %d" % (random.randrange(0, 11), random.randrange(0, 11))
+    if stateCalling == 0:  # normal
+        userVoice = random.choice(['play', '', 'hey buddy'])
+    if stateCalling == 1:  # play
+        userVoice = comm
+    return userVoice
+
+# This function is the callback for the normal state.
+# It checks if the ball is visible from the camera. If it is: it sets the ros parameter ball=1.
+# If it  isn't: it sets the ros parameter ball=0.
+
+
+def find_ball(ros_data):
+
+    global subscriberNORM, vel_Norm, SEARCH_FOR_BALL
+
+    # Init velocity
+    vel_Norm.linear.x = 0
+    vel_Norm.linear.y = 0
+    vel_Norm.linear.z = 0
+    vel_Norm.angular.x = 0
+    vel_Norm.angular.y = 0
+    vel_Norm.angular.z = 0
+
+    # rospy.loginfo('entered img NORM fnct')
+
+    # Convert to cv2
+    np_arr = np.fromstring(ros_data.data, np.uint8)
+    image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+    # Color limits
+    greenLower = (50, 50, 20)
+    greenUpper = (70, 255, 255)
+
+    # Create masks
+    blurred = cv2.GaussianBlur(image_np, (11, 11), 0)
+    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv, greenLower, greenUpper)
+    mask = cv2.erode(mask, None, iterations=2)
+    mask = cv2.dilate(mask, None, iterations=2)
+
+    # Find contour
+    cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
+                            cv2.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+    center = None
+
+    # Only proceed if at least one contour was found
+    if len(cnts) > 0:
+        rospy.loginfo('callback norm fnct: ball')
+        # Ball was found
+        rospy.set_param('ball', 1)
+        subscriberNORM.unregister()
+
+    else:
+
+        vel_Norm.angular.z = 0.3
+        vel_pub.publish(vel_Norm)
+
+        # Ball was not found
+        rospy.loginfo('callback norm fnct: no ball')
+        rospy.set_param('ball', 0)
+        subscriberNORM.unregister()
+
+
+# This class is used to detect and follow the green ball in the arena.
+class find_and_follow_ball:
+
+    # It initializes a publisher to the image, one to the robot velocity and one to the camera motor.
+    # It subscribes to the camera image
+    def __init__(self):
+        '''Initialize ros publisher, ros subscriber'''
+
+        # Init publishers
+        self.image_pub = rospy.Publisher("/output/image_raw/compressed",
+                                         CompressedImage, queue_size=1)
+        self.vel_pub = rospy.Publisher("/cmd_vel",
+                                       Twist, queue_size=1)
+        self.camera_pub = rospy.Publisher(
+            "/joint_position_controller/command", Float64, queue_size=1)
+
+        # Subscribed Topic
+        self.subscriber = rospy.Subscriber("/camera1/image_raw/compressed",
+                                           CompressedImage, self.callback,  queue_size=1)
+
+    # This function is the callback function of the subscription to the camera image.
+    # It looks for a green contour in the image, plots a circle around it and makes the robot approach it.
+    # When the robot has the object at a specified distance, it stops, turns its head twice and again looks for the object.
+    # If the robot doesn't see the ball for 10 iterations in a row, it sets the ros parameter counter to 10 and then waits
+    # for it to be zero again.
+    def callback(self, ros_data):
+        global counter
+        global vel_camera
+        global MAX_COUNTER
+
+        # Read counter ros parameter: proceed only if it's not max
+        counter = rospy.get_param('counter')
+        while counter == MAX_COUNTER:
+            time.sleep(1)
+
+        if VERBOSE:
+            print('received image of type: "%s"' % ros_data.format)
+
+        # Convert to cv2
+        np_arr = np.fromstring(ros_data.data, np.uint8)
+        image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+        # Color limits
+        greenLower = (50, 50, 20)
+        greenUpper = (70, 255, 255)
+
+        # Create masks
+        blurred = cv2.GaussianBlur(image_np, (11, 11), 0)
+        hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+        mask = cv2.inRange(hsv, greenLower, greenUpper)
+        mask = cv2.erode(mask, None, iterations=2)
+        mask = cv2.dilate(mask, None, iterations=2)
+
+        # Find contour
+        cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
+                                cv2.CHAIN_APPROX_SIMPLE)
+        cnts = imutils.grab_contours(cnts)
+        center = None
+
+        # Only proceed if at least one contour was found
+        if len(cnts) > 0:
+
+            # Find the largest contour in the mask, then use it to compute the minimum enclosing circle and centroid
+            c = max(cnts, key=cv2.contourArea)
+            ((x, y), radius) = cv2.minEnclosingCircle(c)
+            M = cv2.moments(c)
+            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+
+            # Only proceed if the radius meets a minimum size
+            if radius > 10:
+
+                # Draw the circle and centroid on the frame, then update the list of tracked points
+                cv2.circle(image_np, (int(x), int(y)), int(radius),
+                           (0, 255, 255), 2)
+                cv2.circle(image_np, center, 5, (0, 0, 255), -1)
+                vel_Play = Twist()
+
+                # Publish robot vel
+                vel_Play.angular.z = -0.002*(center[0]-400)
+                vel_Play.linear.x = -0.01*(radius-100)
+                self.vel_pub.publish(vel_Play)
+
+                # When robot has arrived: turn head
+                if vel_Play.linear.x <= 0.05 and vel_Play.angular.z <= 0.05:
+
+                    # Stop robot completely
+                    vel_Play.angular.z = 0
+                    vel_Play.linear.x = 0
+                    self.vel_pub.publish(vel_Play)
+
+                    # Rotate camera
+                    rospy.set_param('rotate_camera', 1)
+
+            # Go near ball
+            else:
+                vel_Play = Twist()
+                vel_Play.linear.x = 0.5
+                self.vel_pub.publish(vel_Play)
+
+        # Look for ball by turning on the spot
+        else:
+            vel_Play = Twist()
+            vel_Play.angular.z = 0.5
+            self.vel_pub.publish(vel_Play)
+
+            # Increase counter of iterations without seeing the ball
+            counter = counter+1
+            rospy.set_param('counter', counter)
+            time.sleep(1)
+            rospy.loginfo('counter incremented')
+
+            # If counter is max: stop
+            if counter == MAX_COUNTER:
+                vel_Play.angular.z = 0
+                self.vel_pub.publish(vel_Play)
+                self.subscriber.unregister()
+
+        # Show camera image
+        cv2.imshow('window', image_np)
+        cv2.waitKey(2)
+
+# This function is a client for the robot motion server. It sends the desired position.
+
+
+def move_dog(target):
+
+    time.sleep(3)
+
+    client = actionlib.SimpleActionClient(
+        '/robot_reaching_goal', exp_assignment2.msg.PlanningAction)
+
+    client.wait_for_server()
+
+    rospy.loginfo('Going to %d %d %d', target[0], target[1], target[2])
+
+    # Creates a goal to send to the action server.
+    goal = exp_assignment2.msg.PlanningGoal()
+    goal.target_pose.pose.position.x = target[0]
+    goal.target_pose.pose.position.y = target[1]
+    goal.target_pose.pose.position.z = target[2]
+
+    # Sends the goal to the action server.
+    client.send_goal(goal)
+
+    # Waits for the server to finish performing the action.
+    client.wait_for_result()
+
+    rospy.loginfo('arrived, exiting dog fnct')
+
+    return client.get_result()
+
+# Sleep state of the smach machine.
 
 
 class MIRO_Sleep(smach.State):
@@ -158,7 +395,7 @@ class MIRO_Play(smach.State):
         smach.State.__init__(self,
                              outcomes=['normal_command', 'find_command'])
 
-        self.camera_pub = rospy.Publisher("/robot/joint_position_controller/command",
+        self.camera_pub = rospy.Publisher("/joint_position_controller/command",
                                           Float64, queue_size=1)
 
     # In a loop:
@@ -188,6 +425,7 @@ class MIRO_Find(smach.State):
     # - Yes: exit F_TRACK
     # - No: continue
     # End of the loop: exit PLAY
+
     def execute(self, userdata):
         time.sleep(2)
         return random.choice(['f_track_command', 'play_command'])

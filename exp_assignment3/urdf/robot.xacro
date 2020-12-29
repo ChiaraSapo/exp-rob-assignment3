@@ -216,6 +216,38 @@
   </joint>
 
 
+  <link name="hokuyo_link">
+	    <collision>
+	      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+	      <geometry>
+		<box size="0.05 0.05 0.05"/>
+	      </geometry>
+	    </collision>
+	    <visual>
+	      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+	      <geometry>
+		<box size="0.05 0.05 0.05"/>
+	      </geometry>
+	      <material name="red">
+		<color rgba="1 0 0 1"/>
+	      </material>
+	    </visual>
+	    <inertial>
+	      <mass value="1e-5" />
+	      <origin xyz="0 0 0" rpy="0 0 0"/>
+	      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+	    </inertial> 
+  </link>
+  
+  <joint name="hokuyo_joint" type="fixed">
+	    <axis xyz="0 1 0" />
+	    <origin xyz="0.28 0 0.05" rpy="0 0 0"/>
+	    <parent link="link_chassis"/>
+	    <child link="hokuyo_link"/> 
+	 </joint>
+
+
+
 <!--************************************TRANSMISSION****************************************-->
 <transmission name="head_joint_trans">
 	<type>transmission_interface/SimpleTransmission</type>

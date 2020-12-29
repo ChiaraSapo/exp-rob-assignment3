@@ -892,13 +892,13 @@
     <material>Gazebo/WoodFloor</material>
   </gazebo>
   <gazebo reference="panelfront_link">
-    <material>Gazebo/Yellow</material>
+    <material>Gazebo/White</material>
   </gazebo>
   <gazebo reference="panelback_link">
-    <material>Gazebo/Yellow</material>
+    <material>Gazebo/White</material>
   </gazebo>
   <gazebo reference="base_footprint">
-    <material>Gazebo/Purple</material>
+    <material>Gazebo/White</material>
   </gazebo>
   <gazebo reference="body_link">
     <material>Gazebo/White</material>
