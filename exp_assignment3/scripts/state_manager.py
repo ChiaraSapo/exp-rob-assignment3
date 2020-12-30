@@ -71,6 +71,8 @@ import imutils
 import cv2
 from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Float64, UInt32
+# Brings in the .action file and messages used by the move base action
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 VERBOSE = False
 LOOPS = 2
@@ -296,30 +298,35 @@ class find_and_follow_ball:
 
 def move_dog(target):
 
-    time.sleep(3)
+   # Create an action client called "move_base" with action definition file "MoveBaseAction"
+    client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 
-    client = actionlib.SimpleActionClient(
-        '/robot_reaching_goal', exp_assignment2.msg.PlanningAction)
-
+   # Waits until the action server has started up and started listening for goals.
     client.wait_for_server()
 
-    rospy.loginfo('Going to %d %d %d', target[0], target[1], target[2])
+    rospy.loginfo('Going to %d %d with angle %d',
+                  target[0], target[1], target[2])
 
-    # Creates a goal to send to the action server.
-    goal = exp_assignment2.msg.PlanningGoal()
+   # Creates a new goal with the MoveBaseGoal constructor
+    goal = MoveBaseGoal()
+    goal.target_pose.header.frame_id = "map"
+    goal.target_pose.header.stamp = rospy.Time.now()
+
     goal.target_pose.pose.position.x = target[0]
     goal.target_pose.pose.position.y = target[1]
-    goal.target_pose.pose.position.z = target[2]
+    goal.target_pose.pose.orientation.w = 1.0
 
-    # Sends the goal to the action server.
+   # Sends the goal to the action server.
     client.send_goal(goal)
-
-    # Waits for the server to finish performing the action.
-    client.wait_for_result()
-
-    rospy.loginfo('arrived, exiting dog fnct')
-
-    return client.get_result()
+   # Waits for the server to finish performing the action.
+    wait = client.wait_for_result()
+   # If the result doesn't arrive, assume the Server is not available
+    if not wait:
+        rospy.logerr("Action server not available!")
+        rospy.signal_shutdown("Action server not available!")
+    else:
+        # Result of executing the action
+        return client.get_result()
 
 # Sleep state of the smach machine.
 
@@ -338,6 +345,7 @@ class MIRO_Sleep(smach.State):
 
     def execute(self, userdata):
         time.sleep(3)
+        move_dog([0, 0, 0])
         return 'normal_command'
 
 
