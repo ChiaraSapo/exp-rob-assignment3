@@ -3,6 +3,10 @@
   <img height="400" width="500" src="https://github.com/ChiaraSapo/exp-rob-assignment3/blob/master/exp_assignment3/images/Screenshot%20from%202020-12-28%2016-05-37.png?raw=true "Title"">
 </p>
 
+
+To see the states: rosrun smach_viewer smach_viewer.py
+
+
 The human can interact by:
 Sending a Play command to the robot, followed by a GoTo command + target location (Entrance,
 Closet, Living room, Kitchen, Bathroom, Bedroom)
@@ -13,6 +17,9 @@ The robot creates a map of the environment by using the ROS package gmapping, th
 Main topics needed by gmapping: tf (odom) and scan (laser).
 
 Main topics  published in gmapping: map (occupancy grid), map_metadata, entropy (precision).
+
+To see the map: in rviz -> add -> by topic -> map. To move via keyboard: rosrun teleop_twist_keyboard teleop_twist_keyboard.py 
+
 
 ## Folders
 worlds: 
