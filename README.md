@@ -50,14 +50,21 @@ Greedy frontier based exploration: explore greedily until no frontiers can be fo
 Sets frontiers to explore
 
 
-## Folders
-worlds: 
+# Folders
+# worlds
 - house2.world (given, slightly modified): simulation with a custom-built world: an environment divided into 6 rooms. In each room, there is a ball of a different colour. Each colour is therefore associated to a different room. The has an initial position of: x = -5.0, y = 8.0, and with a yaw of -1.57 rad.
-launch:
-urdf: 
+
+# launch 
+- exp3.launch: sets my params, launches the other useful launch files 
+- gmapping.launch: implements gmapping
+- move_base: implements movebase
+- sim_w1: creates the gazebo enviroment
+
+# urdf 
 - human.urdf (given): person
 - robot.gazebo and robot.xacro: improvements of the files of assignment  (a head hokuyo laser sensor was added to the previous robot)
-Scripts: 
+
+# Scripts
 - go_to_point_server
 - move_dog_client
 - state_manager: Different states are described:
