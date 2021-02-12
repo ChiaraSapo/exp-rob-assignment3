@@ -88,19 +88,6 @@ global subscriberPLAY
 
 vel_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=1)
 
-blackLower = (0, 0, 0)
-blackUpper = (5, 50, 50)
-redLower = (0, 50, 50)
-redUpper = (5, 255, 255)
-yellowLower = (25, 50, 50)
-yellowUpper = (35, 255, 255)
-greenLower = (50, 50, 50)
-greenUpper = (70, 255, 255)
-blueLower = (100, 50, 50)
-blueUpper = (130, 255, 255)
-magentaLower = (125, 50, 50)
-magentaUpper = (150, 255, 255)
-
 
 # Simulates the user's voice commands.
 # @param stateCalling: which state the robot is in
@@ -121,57 +108,63 @@ def user_says(stateCalling):
 
 def find_ball(ros_data):
 
-    global subscriberNORM, vel_Norm, SEARCH_FOR_BALL
-
-    # Init velocity
-    vel_Norm.linear.x = 0
-    vel_Norm.linear.y = 0
-    vel_Norm.linear.z = 0
-    vel_Norm.angular.x = 0
-    vel_Norm.angular.y = 0
-    vel_Norm.angular.z = 0
-
-    # rospy.loginfo('entered img NORM fnct')
-
     # Convert to cv2
     np_arr = np.fromstring(ros_data.data, np.uint8)
     image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
     # Color limits
-    greenLower = (50, 50, 20)
+    blackLower = (0, 0, 0)
+    blackUpper = (5, 50, 50)
+
+    redLower = (0, 50, 50)
+    redUpper = (5, 255, 255)
+
+    yellowLower = (25, 50, 50)
+    yellowUpper = (35, 255, 255)
+
+    greenLower = (50, 50, 50)
     greenUpper = (70, 255, 255)
+
+    blueLower = (100, 50, 50)
+    blueUpper = (130, 255, 255)
+
+    magentaLower = (125, 50, 50)
+    magentaUpper = (150, 255, 255)
 
     # Create masks
     blurred = cv2.GaussianBlur(image_np, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-    mask = cv2.inRange(hsv, greenLower, greenUpper)
-    mask = cv2.erode(mask, None, iterations=2)
-    mask = cv2.dilate(mask, None, iterations=2)
+    mask1 = cv2.inRange(hsv, greenLower, greenUpper)
+    mask1 = cv2.erode(mask, None, iterations=2)
+    mask1 = cv2.dilate(mask, None, iterations=2)
 
     # Find contour
-    cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
+    cnts = cv2.findContours(mask1.copy(), cv2.RETR_EXTERNAL,
                             cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     center = None
 
     # Only proceed if at least one contour was found
     if len(cnts) > 0:
-        rospy.loginfo('callback norm fnct: ball')
-        # Ball was found
-        rospy.set_param('ball', 1)
-        subscriberNORM.unregister()
+        # find the largest contour in the mask, then use
+        # it to compute the minimum enclosing circle and
+        # centroid
+        c = max(cnts, key=cv2.contourArea)
+        ((x, y), radius) = cv2.minEnclosingCircle(c)
+        M = cv2.moments(c)
+        center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
 
-    else:
+        # only proceed if the radius meets a minimum size
+        if radius > 10:
+            # draw the circle and centroid on the frame,
+            # then update the list of tracked points
+            cv2.circle(image_np, (int(x), int(y)), int(radius),
+                       (0, 255, 255), 2)
+            cv2.circle(image_np, center, 5, (0, 0, 255), -1)
+            rospy.set_param('color', 'green')
 
-        vel_Norm.angular.z = 0.3
-        vel_pub.publish(vel_Norm)
 
-        # Ball was not found
-        rospy.loginfo('callback norm fnct: no ball')
-        rospy.set_param('ball', 0)
-        subscriberNORM.unregister()
-
-
+'''
 # This class is used to detect and follow the green ball in the arena.
 class find_and_follow_ball:
 
@@ -292,6 +285,7 @@ class find_and_follow_ball:
         # Show camera image
         cv2.imshow('window', image_np)
         cv2.waitKey(2)
+'''
 
 # This function is a client for the robot motion server. It sends the desired position.
 

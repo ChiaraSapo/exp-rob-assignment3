@@ -57,7 +57,7 @@
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
   args="-urdf -model robot_desription -param robot_description -x -5 -y 8 -z 0 -R 0 -P 0 -Y -1.57"/>
 
-
+<!--
     <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
       <param name="base_frame" value="link_chassis"/>
       <param name="map_update_interval" value="5.0"/>
@@ -89,7 +89,7 @@
       <param name="lasamplerange" value="0.005"/>
       <param name="lasamplestep" value="0.005"/>
     </node>
-
+-->
 
 
     <param name="use_gui" value="False"/>
