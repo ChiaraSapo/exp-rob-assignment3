@@ -22,7 +22,7 @@ Main topics  published in gmapping: map (occupancy grid), map_metadata, entropy 
 
 To see the map: in rviz -> add -> by topic -> map. To move via keyboard: rosrun teleop_twist_keyboard teleop_twist_keyboard.py 
 
-## Planning for autonomous exploration: global + local (MoveBase)
+## Planning: global + local (MoveBase)
 Default global planners: carrot, navfn (Dijkstra), global. I use navfn. 
 
 Default local planners: dinamic window approach, elastic band and teb. I use dwa, that makes some steps: 
@@ -44,6 +44,11 @@ Costmap is composed of 3 layers:
 Also, there is a global costmap (built before) and a local costmap genreated by using data from robot's sensors in runtime.
 
 Recovery behaviours (when robot gets stuck): clear costmap recovery (set local costmap state to the same of global), rotate recovery (rotate of 360°). If they don't work, implement other methods (ex: go back to previous pas, or set a temporary goal close to the robot).
+
+## Explore autonomously: explore-lite package (+moveBase)
+Greedy frontier based exploration: explore greedily until no frontiers can be found, by ending goals to moveBase server. Teh costmap is the one of movebase, not another. Link chassis as base frame also here.
+Sets frontiers to explore
+
 
 ## Folders
 worlds: 
