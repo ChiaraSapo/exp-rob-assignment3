@@ -36,3 +36,5 @@ echo "All .sh files activated!"
 a=$(find "$(pwd)" -name  *.py ) 
 chmod +x $a
 echo "All .py files activated!"
+
+

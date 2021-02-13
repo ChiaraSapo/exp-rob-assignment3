@@ -10,10 +10,20 @@ project(exp_assignment3)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
+  cv_bridge
+  image_transport
+  sensor_msgs
+  nav_msgs
+  geometry_msgs
+  std_msgs
+  message_generation
+  tf
+  actionlib_msgs
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
+find_package (OpenCV REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -60,17 +70,20 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
+add_action_files(
+   FILES
+   Planning.action
 #   Action1.action
 #   Action2.action
-# )
+)
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+generate_messages(
+   DEPENDENCIES
+   geometry_msgs
+   actionlib_msgs
+   #std_msgs  # Or other packages containing msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -106,6 +119,7 @@ catkin_package(
 #  LIBRARIES exp_assignment3
 #  CATKIN_DEPENDS roscpp rospy
 #  DEPENDS system_lib
+  DEPENDS OpenCV
 )
 
 ###########

@@ -3,14 +3,16 @@
 <launch>
 	<include file="$(find exp_assignment3)/launch/sim_w1.launch"></include>
 	<include file="$(find exp_assignment3)/launch/gmapping.launch"></include>
+        <!--<include file="$(find explore_lite)/launch/explore.launch"></include>-->
 	
     <arg name="des_x" default= "2.5"/>
     <arg name="des_y" default= "-2.0"/>
     <param name="des_pos_x" value="$(arg des_x)" />
     <param name="des_pos_y" value="$(arg des_y)" />
+ <param name="color" value="none" />
 
-	<!--<node name='state_manager' pkg="exp_assignment3" type="state_manager.py" output="screen" />
-	<node name="robot_position_server" pkg="exp_assignment3" type="go_to_point_service_m.py" output="screen" />-->
+	<node name='state_manager' pkg="exp_assignment3" type="state_manager.py" output="screen" />
+
     
     <include file="$(find exp_assignment3)/launch/move_base.launch"></include>
 </launch>
