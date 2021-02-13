@@ -45,6 +45,9 @@ Also, there is a global costmap (built before) and a local costmap genreated by 
 
 Recovery behaviours (when robot gets stuck): clear costmap recovery (set local costmap state to the same of global), rotate recovery (rotate of 360°). If they don't work, implement other methods (ex: go back to previous pas, or set a temporary goal close to the robot).
 
+The move_base ROS Node, is a major component of the navigation stack which allows to configure, run and interact with the latter. The move_base node implements a SimpleActionServer, an action server with a single goal policy, taking in goals of geometry_msgs/PoseStamped message type. To communicate with this node, the SimpleActionClient interface is used. The move_base node tries to achieve a desired pose by combining a global and a local motion planners to accomplish a navigation task which includes obstacle avoidance. (source https://hotblackrobotics.github.io/en/blog/2018/01/29/action-client-py/)
+
+
 ## Explore autonomously: explore-lite package (+moveBase)
 Greedy frontier based exploration: explore greedily until no frontiers can be found, by ending goals to moveBase server. Teh costmap is the one of movebase, not another. Link chassis as base frame also here.
 Sets frontiers to explore
