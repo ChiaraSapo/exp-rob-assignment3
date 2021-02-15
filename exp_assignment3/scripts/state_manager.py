@@ -112,7 +112,9 @@ lowerValues = [blackLower, redLower, yellowLower,
 upperValues = [blackUpper, redUpper, yellowUpper,
                greenUpper, blackUpper, magentaUpper]
 
-colorName = ['black', 'red', 'yellow', 'green', 'black', 'magenta']
+#colorName = ['blue', 'red', 'yellow', 'green', 'black', 'magenta']
+colorName = ['entrance', 'closet', 'kitchen',
+             'livingRoom', 'bedroom', 'bathroom']
 
 blackPos = [0, 0]
 redPos = [0, 0]
@@ -123,7 +125,10 @@ magentaPos = [0, 0]
 
 ballsPos = [blackPos, redPos, yellowPos, greenPos, bluePos, magentaPos]
 
-lastDetected = 'none'
+lastDetected = -1
+
+moveTo = [0, 0, 0]
+
 # Publisher
 
 # vel_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=1)
@@ -131,7 +136,8 @@ lastDetected = 'none'
 
 def user_says(stateCalling):
 
-    comm = "go to %d %d" % (random.randrange(0, 11), random.randrange(0, 11))
+    comm = "go to %d %d in the %s" % (random.randrange(
+        0, 11), random.randrange(0, 11), colorName[1])
     if stateCalling == 0:  # normal
         userVoice = random.choice(['play', ''])
     if stateCalling == 1:  # play
@@ -197,6 +203,9 @@ class find_and_follow_ball:
                     rospy.set_param('color', numMask)
                     rospy.loginfo('%s ball detected', colorName[numMask])
 
+                else:
+                    lastDetected = -1
+
             cv2.imshow('window', image_np)
             cv2.waitKey(2)
 
@@ -223,7 +232,7 @@ def clbk_odom(msg):
     yaw_ = euler[2]
 
 
-def move_dog(target):
+def move_dog(target):  # then add orientation
 
     # Source: https://hotblackrobotics.github.io/en/blog/2018/01/29/action-client-py/
 
@@ -266,9 +275,10 @@ class MIRO_Sleep(smach.State):
     # Exit NORMAL
 
     def execute(self, userdata):
-        time.sleep(3)
-        move_dog([0, 0, 0])
-        time.sleep(5)
+        rospy.logerr('sleep')
+        #move_dog([0, 0, 0])
+        time.sleep(1)
+        rospy.logerr('exit sleep')
         return 'normal_command'
 
 
@@ -293,13 +303,16 @@ class MIRO_Normal(smach.State):
 
     def execute(self, userdata):
 
+        rospy.logerr('normal')
+
         time.sleep(2)
 
-        for i in range(0, 10):
+        for loops in range(0, 10):
 
             if user_says(0) == 'play':
                 return 'play_command'
 
+            rospy.logerr('should explore but have not implemented yet')
             # move around(???) -> explore lite !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
 
             if rospy.get_param('color') != 'none':
@@ -324,14 +337,18 @@ class N_Track(smach.State):
     # Exit NORMAL
 
     def execute(self, userdata):
+
+        rospy.logerr('N_track')
         time.sleep(2)
 
         # go close to ball............................
+
         if ballsPos[lastDetected] == [0, 0]:
             ballsPos[lastDetected] = [position_.x, position_.y]
 
         rospy.logerr('Saved position of %s ball as %d, %d approximately',
                      colorName[lastDetected], position_.x, position_.y)
+
         return 'normal_command'
 
 
@@ -359,8 +376,37 @@ class MIRO_Play(smach.State):
     # End of the loop: exit NORMAL
 
     def execute(self, userdata):
-        time.sleep(2)
-        return random.choice(['find_command', 'normal_command'])
+        global moveTo
+        rospy.logerr('play')
+        for loops in range(0, 10):
+
+            time.sleep(2)
+            rospy.logerr('moving to human')
+            #move_dog([-5, -8, 0])
+            rospy.logerr('listen to user')
+            user_command = user_says(1)
+
+            if 'go' in user_command and 'to' in user_command and 'in' in user_command:
+                # check?
+                desiredPos = [int(s)
+                              for s in user_command.split() if s.isdigit()]
+
+                for i in range(0, 6):
+                    # check?
+                    if colorName[i] in user_command:
+                        desiredRoom = i
+                        break
+
+            if ballsPos[i] != [0, 0]:
+                moveTo = [ballsPos, 0]
+                move_dog(moveTo)  # not sure to put desiredPos
+                rospy.logerr(
+                    'i already know this pos: going there in %d %d', ballsPos[0], ballsPos[1])
+
+            else:
+                return 'find_command'
+
+        return 'normal_command'
 
 
 class MIRO_Find(smach.State):
@@ -378,8 +424,26 @@ class MIRO_Find(smach.State):
     # End of the loop: exit PLAY
 
     def execute(self, userdata):
-        time.sleep(2)
-        return random.choice(['f_track_command', 'play_command'])
+
+        rospy.logerr('find')
+
+        global moveTo
+
+        for loops in range(0, 10):
+            time.sleep(2)
+            # In the Find state, a policy for exploring the unknown environment, with the final purpose of
+            # finding the coloured object should be used. For example, it may use the information about the
+            # already known position, or it may rely on the explore-lite package.
+            # HERE: known pos
+
+            move_dog(moveTo)
+            rospy.logerr('moving to %d %d', moveTo[0], moveTo[1])
+            while lastDetected == -1:
+                time.sleep(2)
+
+            return 'f_track_command'
+
+        return 'play_command'
 
 
 class F_Track(smach.State):
@@ -395,8 +459,21 @@ class F_Track(smach.State):
     # - No: exit FIND
 
     def execute(self, userdata):
-        time.sleep(2)
-        return random.choice(['find_command', 'play_command'])
+
+        global moveTo
+
+        rospy.logerr('f_track')
+
+        # go close to ball............................
+
+        des = moveTo[:2]  # check
+
+        if ballsPos[lastDetected] == des:
+            rospy.logerr('found the right ball, play again')
+            return 'play_command'
+
+        else:
+            return 'find_command'
 
 
 def main():
