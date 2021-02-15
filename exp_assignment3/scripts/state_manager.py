@@ -73,17 +73,10 @@ from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Float64, UInt32
 # Brings in the .action file and messages used by the move base action
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-'''
-VERBOSE = False
-LOOPS = 2
-vel_camera = Float64()
-vel_Norm = Twist()
-MAX_COUNTER = 25
-SEARCH_FOR_BALL = 35
-global counter
-global subscriberNORM
-global subscriberPLAY
-'''
+import signal
+import subprocess
+import roslaunch
+
 position_ = Point()
 pose_ = Pose()
 yaw_ = 0
@@ -135,17 +128,18 @@ moveTo = [0, 0, 0]
 
 
 def user_says(stateCalling):
-
-    comm = "go to %d %d in the %s" % (random.randrange(
-        0, 11), random.randrange(0, 11), colorName[1])
+    i = random.randrange(0, 6)
+    comm = "go to %s" % (colorName[i])
     if stateCalling == 0:  # normal
         userVoice = random.choice(['play', ''])
+        rospy.logerr('user said: %s', userVoice)
     if stateCalling == 1:  # play
         userVoice = comm
+        rospy.logerr('user said to go to %s', colorName[i])
     return userVoice
 
 
-class find_and_follow_ball:
+class camera_manager:
 
     def __init__(self):
 
@@ -200,8 +194,8 @@ class find_and_follow_ball:
 
                 if radius > 10:
                     lastDetected = numMask
-                    rospy.set_param('color', numMask)
-                    rospy.loginfo('%s ball detected', colorName[numMask])
+                    #rospy.set_param('color', numMask)
+                    rospy.logerr('%s ball detected', colorName[numMask])
 
                 else:
                     lastDetected = -1
@@ -313,14 +307,21 @@ class MIRO_Normal(smach.State):
                 return 'play_command'
 
             rospy.logerr('should explore but have not implemented yet')
-            # move around(???) -> explore lite !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
 
-            if rospy.get_param('color') != 'none':
-                return 'n_track_command'
+            package = 'explore_lite'
+            launcher_name = 'explore.launch'
+            command = "roslaunch {0} {1}".format(package, launcher_name)
+            p = subprocess.Popen(command, shell=True)
+
+            for loops2 in range(0, 100):
+                time.sleep(5)
+                if lastDetected != -1:
+                    p.send_signal(signal.SIGINT)
+                    return 'n_track_command'
+
+            p.send_signal(signal.SIGINT)
 
         return 'sleep_command'
-
-        # return random.choice(['sleep_command', 'play_command', 'n_track_command'])
 
 
 class N_Track(smach.State):
@@ -341,11 +342,10 @@ class N_Track(smach.State):
         rospy.logerr('N_track')
         time.sleep(2)
 
-        # go close to ball............................
+        # go close to ball....................................................................................................................
 
         if ballsPos[lastDetected] == [0, 0]:
             ballsPos[lastDetected] = [position_.x, position_.y]
-
         rospy.logerr('Saved position of %s ball as %d, %d approximately',
                      colorName[lastDetected], position_.x, position_.y)
 
@@ -376,20 +376,20 @@ class MIRO_Play(smach.State):
     # End of the loop: exit NORMAL
 
     def execute(self, userdata):
+
         global moveTo
         rospy.logerr('play')
+
         for loops in range(0, 10):
 
             time.sleep(2)
             rospy.logerr('moving to human')
             #move_dog([-5, -8, 0])
+
             rospy.logerr('listen to user')
             user_command = user_says(1)
 
-            if 'go' in user_command and 'to' in user_command and 'in' in user_command:
-                # check?
-                desiredPos = [int(s)
-                              for s in user_command.split() if s.isdigit()]
+            if 'go' in user_command and 'to' in user_command:
 
                 for i in range(0, 6):
                     # check?
@@ -399,11 +399,13 @@ class MIRO_Play(smach.State):
 
             if ballsPos[i] != [0, 0]:
                 moveTo = [ballsPos, 0]
-                move_dog(moveTo)  # not sure to put desiredPos
+                move_dog(moveTo)
+
                 rospy.logerr(
                     'i already know this pos: going there in %d %d', ballsPos[0], ballsPos[1])
 
             else:
+                rospy.logerr('i do not know this position, i will look for it')
                 return 'find_command'
 
         return 'normal_command'
@@ -430,18 +432,21 @@ class MIRO_Find(smach.State):
         global moveTo
 
         for loops in range(0, 10):
+
             time.sleep(2)
-            # In the Find state, a policy for exploring the unknown environment, with the final purpose of
-            # finding the coloured object should be used. For example, it may use the information about the
-            # already known position, or it may rely on the explore-lite package.
-            # HERE: known pos
 
-            move_dog(moveTo)
-            rospy.logerr('moving to %d %d', moveTo[0], moveTo[1])
-            while lastDetected == -1:
-                time.sleep(2)
+            package = 'explore_lite'
+            launcher_name = 'explore.launch'
+            command = "roslaunch {0} {1}".format(package, launcher_name)
+            p = subprocess.Popen(command, shell=True)
 
-            return 'f_track_command'
+            for loops2 in range(0, 100):
+                time.sleep(5)
+
+                if lastDetected != -1:
+                    p.send_signal(signal.SIGINT)
+                    return 'f_track_command'
+            p.send_signal(signal.SIGINT)
 
         return 'play_command'
 
@@ -464,7 +469,7 @@ class F_Track(smach.State):
 
         rospy.logerr('f_track')
 
-        # go close to ball............................
+        # go close to ball...................................................................................................................
 
         des = moveTo[:2]  # check
 
@@ -481,7 +486,7 @@ def main():
     rospy.init_node('state_manager')
     rospy.set_param('Ball', 0)
 
-    find_and_follow_ball()
+    camera_manager()
 
     sub_odom = rospy.Subscriber('odom', Odometry, clbk_odom)
 
