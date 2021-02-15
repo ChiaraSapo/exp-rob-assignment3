@@ -1,4 +1,6 @@
-TODO nect time: check why cv bridge is so slow. implement the "go near ball" in track states.
+first things TODO next time: 
+- check why cv bridge is so slow. 
+- implement the "go near ball" in track states.
 
 
 <p align="center">
