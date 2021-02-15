@@ -71,74 +71,16 @@ Sets frontiers to explore
 - go_to_point_server
 - move_dog_client
 - state_manager: Different states are described:
-  - SLEEP: 
-  
-    Go to kennel
-    
-    Stay still for 3 seconds
-    
-    Exit: NORMAL
-    
+  - SLEEP: Dog goes to kennel via MoveBase, stays still for a few seconds, then enters the Normal behaviour.
   - NORMAL: In a loop:
-  
-    Listen to human: play command?
-    
-    Yes: exit: PLAY
-    
-    No: Continue.
-    
-    Move around: ball?
-    
-    Yes: exit: N_TRACK
-    
-    No: Continue.
-    
-    End of the loop: exit: SLEEP
-
-  - N_TRACK
-  
-    Go close to the ball: did you know its position yet?
-    
-    Yes: continue.
-
-    No: save it.
-    
-    Exit NORMAL
-
-  - PLAY
+    Dog listens to human: if it hears a play command it enters in play behaviour. Else, it starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Normal_track phase. At the end of the loop, if nothing has happened, the dog goes to Sleep.
+   - N_TRACK: The dog gets close to the ball and checks if it already knew its position. In case it didn't, it saves the new position. Then it goes back to Normal state.
+  - PLAY: In a loop: the dog goes to the human, waits for a goto command and, if it hears it, it compares it to the known ball positions to check if it already knows the position the user has said to him. If it knew it, it goes toward that position, and then goes to Normal. However, if it didn't know the room yet, it goes to Find.
+  - FIND: In a loop: the dog starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Find_track phase. At the end of the loop, if nothing has happened, the dog goes to Play.
+  - F_TRACK: he dog gets close to the ball and checks if it ais the desired ball. In case it isn't, it goes back to Find. If it is, it goes to Play.
    
-    In a loop:
-    
-    Go to human,
-    
-    Wait for a goto command,
-    
-    Compare command to the known ball positions: is position known?
-    
-    Yes: go to position.
-    
-    No: exit FIND.
-    
-    Wait to be arrived.
-    
-    End of the loop: exit: NORMAL
+Explore_lite was used by launching and then stopping the explore.launch file from within the states that needed it.
 
-  - FIND
-    
-    In a loop:
-    
-    Move towards goal (may change it): ball?
-    
-    Yes: exit F_TRACK
-    
-    No: continue
-    
-    End of the loop: exit PLAY
+MoveBase was used by creating a simple action client with a MoveBaseAction in function move_dog.
 
-  - F_TRACK
-    
-    Go close to the ball: is it the desired position? (no need to check if saved: u enter here only if it's not)
-    
-    Yes: exit PLAY
-    
-    No: exit FIND
+The camera was used by implementing cv bridge in function camera_manager.
