@@ -3,49 +3,6 @@
 # @file state_manager.py
 # @brief
 
-# SLEEP
-# Go to kennel
-# Stay still for 3 seconds
-# Exit NORMAL
-
-# NORMAL
-# In a loop:
-# Listen to human: play command?
-# - Yes: exit PLAY
-# - No: Continue
-# Move around: ball?
-# - Yes: exit N_TRACK
-# - No: Continue
-# End of the loop: exit SLEEP
-
-# N_TRACK
-# Go close to the ball: did you know its position yet?
-# - Yes: continue
-# - No: save it
-# Exit NORMAL
-
-# PLAY
-# In a loop:
-# Go to human
-# Wait for a goto command
-# Compare command to the known ball positions: is position known?
-# - Yes: go to position
-# - No: exit FIND
-# Wait to be arrived
-# End of the loop: exit NORMAL
-
-# FIND
-# In a loop:
-# Move towards goal (may change it): ball?
-# - Yes: exit F_TRACK
-# - No: continue
-# End of the loop: exit PLAY
-
-# F_TRACK
-# Go close to the ball: is it the desired position? (no need to check if saved: u enter here only if it's not)
-# - Yes: exit PLAY
-# - No: exit FIND
-
 import roslib
 import rospy
 import smach
@@ -64,78 +21,79 @@ from tf import transformations
 import math
 import actionlib
 import actionlib.msg
-#import exp_assignment3.msg
 import sys
 from scipy.ndimage import filters
 import imutils
 import cv2
 from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Float64, UInt32
-# Brings in the .action file and messages used by the move base action
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 import signal
 import subprocess
 import roslaunch
 
-position_ = Point()
-pose_ = Pose()
-yaw_ = 0
 
-# Color limits
+# Color limits and meanings
 blackLower = (0, 0, 0)
 blackUpper = (5, 50, 50)
-
 redLower = (0, 50, 50)
 redUpper = (5, 255, 255)
-
 yellowLower = (25, 50, 50)
 yellowUpper = (35, 255, 255)
-
 greenLower = (50, 50, 50)
 greenUpper = (70, 255, 255)
-
 blueLower = (100, 50, 50)
 blueUpper = (130, 255, 255)
-
 magentaLower = (125, 50, 50)
 magentaUpper = (150, 255, 255)
-
 lowerValues = [blackLower, redLower, yellowLower,
-               greenLower, blackLower, magentaLower]
+               greenLower, blueLower, magentaLower]
 upperValues = [blackUpper, redUpper, yellowUpper,
-               greenUpper, blackUpper, magentaUpper]
-
-#colorName = ['blue', 'red', 'yellow', 'green', 'black', 'magenta']
+               greenUpper, blueUpper, magentaUpper]
 colorName = ['entrance', 'closet', 'kitchen',
              'livingRoom', 'bedroom', 'bathroom']
 
+# Balls positions
 blackPos = [0, 0]
 redPos = [0, 0]
 yellowPos = [0, 0]
 greenPos = [0, 0]
 bluePos = [0, 0]
 magentaPos = [0, 0]
-
 ballsPos = [blackPos, redPos, yellowPos, greenPos, bluePos, magentaPos]
 
+# Last detected ball, close ball
 lastDetected = -1
+closeBall = -1
 
+# Robot positions
+position_ = Point()
+pose_ = Pose()
+yaw_ = 0
+
+# Desired robot position
 moveTo = [0, 0, 0]
 
-# Publisher
-
-# vel_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=1)
+# Velocity publisher to go near ball
+vel_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=1)
 
 
 def user_says(stateCalling):
-    i = random.randrange(0, 6)
-    comm = "go to %s" % (colorName[i])
-    if stateCalling == 0:  # normal
+
+    if stateCalling == 0:  # Normal behaviour
         userVoice = random.choice(['play', ''])
         rospy.logerr('user said: %s', userVoice)
-    if stateCalling == 1:  # play
+
+    elif stateCalling == 1:  # Play behaviour
+        i = random.randrange(0, 6)
+        comm = "go to %s" % (colorName[0])
         userVoice = comm
         rospy.logerr('user said to go to %s', colorName[i])
+
+    else:
+        rospy.logerr('user_says function called without input')
+        return 0
+
     return userVoice
 
 
@@ -159,16 +117,16 @@ class camera_manager:
         global lowerValues
         global colorName
         global ballsPos, lastDetected
-        global position_
+        global position_, closeBall
 
         # Convert to cv2
         np_arr = np.fromstring(ros_data.data, np.uint8)
         image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+        blurred = cv2.GaussianBlur(image_np, (11, 11), 0)
+        hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
         # Create masks
         for numMask in range(0, 6):
-            blurred = cv2.GaussianBlur(image_np, (11, 11), 0)
-            hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
             mask = cv2.inRange(hsv, lowerValues[numMask], upperValues[numMask])
             mask = cv2.erode(mask, None, iterations=2)
@@ -188,17 +146,25 @@ class camera_manager:
                 vel_Play = Twist()
 
                 # Publish robot vel
-                vel_Play.angular.z = -0.002*(center[0]-400)
-                vel_Play.linear.x = -0.01*(radius-100)
+                # vel_Play.angular.z = -0.002*(center[0]-400)
+                # vel_Play.linear.x = -0.01*(radius-100)
                 # self.vel_pub.publish(vel_Play)
 
-                if radius > 10:
+                if radius > 10 and radius < 15:
                     lastDetected = numMask
-                    #rospy.set_param('color', numMask)
-                    rospy.logerr('%s ball detected', colorName[numMask])
+                    rospy.logerr(
+                        '%s ball detected at a certain distance', colorName[numMask])
+                    closeBall = -1
+
+                elif radius >= 15:
+                    lastDetected = numMask
+                    closeBall = 1
+                    rospy.logerr(
+                        '%s ball detected at a close distance', colorName[numMask])
 
                 else:
                     lastDetected = -1
+                    closeBall = -1
 
             cv2.imshow('window', image_np)
             cv2.waitKey(2)
@@ -339,10 +305,19 @@ class N_Track(smach.State):
 
     def execute(self, userdata):
 
+        global vel_pub, closeBall
+
         rospy.logerr('N_track')
         time.sleep(2)
 
         # go close to ball....................................................................................................................
+        while closeBall == -1:
+            vel_Play = Twist()
+            vel_Play.linear.x = 0.1
+            vel_pub.publish(vel_Play)
+
+        vel_Play.linear.x = 0
+        vel_pub.publish(vel_Play)
 
         if ballsPos[lastDetected] == [0, 0]:
             ballsPos[lastDetected] = [position_.x, position_.y]
@@ -465,11 +440,19 @@ class F_Track(smach.State):
 
     def execute(self, userdata):
 
-        global moveTo
+        global moveTo, vel_pub, closeBall
 
         rospy.logerr('f_track')
 
         # go close to ball...................................................................................................................
+
+        while closeBall == -1:
+            vel_Play = Twist()
+            vel_Play.linear.x = 0.1
+            vel_pub.publish(vel_Play)
+
+        vel_Play.linear.x = 0
+        vel_pub.publish(vel_Play)
 
         des = moveTo[:2]  # check
 
@@ -477,7 +460,9 @@ class F_Track(smach.State):
             rospy.logerr('found the right ball, play again')
             return 'play_command'
 
-        else:
+        else:  # Save position anyway, it'll be useful
+            if ballsPos[lastDetected] == [0, 0]:
+                ballsPos[lastDetected] = [position_.x, position_.y]
             return 'find_command'
 
 

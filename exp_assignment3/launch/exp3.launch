@@ -3,7 +3,6 @@
 <launch>
 	<include file="$(find exp_assignment3)/launch/sim_w1.launch"></include>
 	<include file="$(find exp_assignment3)/launch/gmapping.launch"></include>
-        <!--<include file="$(find explore_lite)/launch/explore.launch"></include>-->
 	
     <arg name="des_x" default= "2.5"/>
     <arg name="des_y" default= "-2.0"/>
@@ -16,3 +15,5 @@
     
     <include file="$(find exp_assignment3)/launch/move_base.launch"></include>
 </launch>
+
+
