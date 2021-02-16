@@ -1,6 +1,6 @@
 first things TODO next time: 
-- check why cv bridge is so slow. 
-- implement the "go near ball" in track states.
+- understand why camera f*ing rotates.
+- check the "go near ball" in track states.
 
 
 <p align="center">
