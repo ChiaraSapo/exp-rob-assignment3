@@ -1,6 +1,5 @@
 first things TODO next time: 
-- understand why camera f*ing rotates.
-- check the "go near ball" in track states.
+- adjust rotation both in param file and in move_dog fnct
 
 
 <p align="center">
@@ -59,7 +58,7 @@ Sets frontiers to explore
 
 # Folders
 # worlds
-- house2.world (given, slightly modified): simulation with a custom-built world: an environment divided into 6 rooms. In each room, there is a ball of a different colour. Each colour is therefore associated to a different room. The has an initial position of: x = -5.0, y = 8.0, and with a yaw of -1.57 rad.
+- house2.world (given, slightly modified): simulation with a custom-built world: an environment divided into 6 rooms. In each room, there is a ball of a different colour. Each colour is therefore associated to a different room. The robot has an initial position of: x = -5.0, y = 8.0, and with a yaw of -1.57 rad. 
 
 # launch 
 - exp3.launch: sets my params, launches the other useful launch files 
@@ -69,22 +68,21 @@ Sets frontiers to explore
 
 # urdf 
 - human.urdf (given): person
-- robot.gazebo and robot.xacro: improvements of the files of assignment  (a head hokuyo laser sensor was added to the previous robot)
+- robot.gazebo and robot.xacro: improvements of the files of assignment  (a head hokuyo laser sensor was added to the previous robot, the head revolute joint was substituted with a fixed joint since the robot didn't need to rotate its head anymore)
 
 # Scripts
-- go_to_point_server
-- move_dog_client
 - state_manager: Different states are described:
   - SLEEP: Dog goes to kennel via MoveBase, stays still for a few seconds, then enters the Normal behaviour.
   - NORMAL: In a loop:
-    Dog listens to human: if it hears a play command it enters in play behaviour. Else, it starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Normal_track phase. At the end of the loop, if nothing has happened, the dog goes to Sleep.
+    It starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Normal_track phase. Then the dog listens to human: if it hears a play command it enters in play behaviour. At the end of the loop, if nothing has happened, the dog goes to Sleep.
    - N_TRACK: The dog gets close to the ball and checks if it already knew its position. In case it didn't, it saves the new position. Then it goes back to Normal state.
   - PLAY: In a loop: the dog goes to the human, waits for a goto command and, if it hears it, it compares it to the known ball positions to check if it already knows the position the user has said to him. If it knew it, it goes toward that position, and then goes to Normal. However, if it didn't know the room yet, it goes to Find.
   - FIND: In a loop: the dog starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Find_track phase. At the end of the loop, if nothing has happened, the dog goes to Play.
-  - F_TRACK: he dog gets close to the ball and checks if it ais the desired ball. In case it isn't, it goes back to Find. If it is, it goes to Play.
+  - F_TRACK: he dog gets close to the ball and checks if it ais the desired ball. In case it isn't, it saves its position (if needed) adn goes back to Find. If it is, it goes to Play.
    
 Explore_lite was used by launching and then stopping the explore.launch file from within the states that needed it.
 
-MoveBase was used by creating a simple action client with a MoveBaseAction in function move_dog.
+MoveBase was used by creating a simple action client with a MoveBaseAction in the function move_dog.
 
 The camera was used by implementing cv bridge in function camera_manager.
+
