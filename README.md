@@ -1,4 +1,5 @@
 first things TODO next time: 
+- check why move dog doesn't work in play behaviour
 - adjust rotation both in param file and in move_dog fnct
 
 
