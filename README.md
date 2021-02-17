@@ -1,6 +1,6 @@
 first things TODO next time: 
-- check why move dog doesn't work in play behaviour
-- adjust rotation both in param file and in move_dog fnct
+- check why move dog doesn't work in play behaviour after explore
+- check why dog doesn't stop in front of ball
 
 
 <p align="center">
@@ -83,7 +83,7 @@ Sets frontiers to explore
    
 Explore_lite was used by launching and then stopping the explore.launch file from within the states that needed it.
 
-MoveBase was used by creating a simple action client with a MoveBaseAction in the function move_dog.
+MoveBase was used by creating a simple action client with a MoveBaseAction in the function move_dog. This function first sets the right angle towards the target by directly publishing on the cmd_vel topic, then calls the MoveBase service to go there. MoveBase assures obstacle avoidance but works better if the angle is previously set (problems in moving towards the human during play). 
 
 The camera was used by implementing cv bridge in function camera_manager.
 
