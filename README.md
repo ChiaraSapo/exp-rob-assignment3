@@ -1,4 +1,4 @@
-Next time: maybe implement the yaw, run for a long time.
+Next time: rewatch https://web.microsoftstream.com/video/3aee2aaf-c0f1-48dd-b27f-34c2b865979c (cv lesson) maybe implement the yaw, run for a long time.
 
 # A little bit of theory
 
