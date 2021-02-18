@@ -83,6 +83,13 @@ It implements a greedy frontier based exploration: explore greedily until no fro
 - human.urdf (given): person
 - robot.gazebo and robot.xacro: improvements of the robot of assignment 2 (a head hokuyo laser sensor was added to the previous robot, the head revolute joint was substituted with a fixed joint since the robot didn't need to rotate its head anymore). Now the robot comprises of: camera + laser scan
 
+# msg
+- camera_msg: custom message to send information about the images received from the camera. It comprises:
+  - **justDetected** indicates the ball that has just been detected
+  - **closeBall** indicates that the ball is close (threshold of proximity was chosen manually)
+  - **radius**, **center** of the ball as seen from the camera.
+
+
 # Scripts
 ## State manager
 It implements a smach machine where different states are described:
@@ -120,5 +127,5 @@ In particular, the camera_manager_fnct class continuously checks the environment
 - **closeBall** indicates that the ball is close (threshold of proximity was chosen manually)
 - **radius**, **center** of the ball as seen from the camera.
 
-It then publishes on the topic "camera_info" an array of integers that contains, in order: lastDetected, closeBall, radius, center
+It then publishes on the topic "camera_info" an array of integers that contains, in order: lastDetected, closeBall, radius, center.
 
