@@ -31,6 +31,7 @@ import signal
 import subprocess
 import roslaunch
 from tf import transformations
+from exp_assignment3.msg import camera_msg
 
 colorName = ['entrance', 'closet', 'kitchen',
              'livingRoom', 'bedroom', 'bathroom']
@@ -49,13 +50,13 @@ ballsPos = [blackPos, redPos, yellowPos, greenPos, bluePos, magentaPos]
 justDetected = -1
 closeBall = -1
 desiredRoom = -1
-justDetected = -2
+lastDetected = -2
 
 # Robot positions
 position_ = Point()
 pose_ = Pose()
 yaw_ = 0
-yaw_precision_2_ = 1
+yaw_precision_2_ = 0.5
 
 # Desired robot position
 moveTo = [0, 0, 0]
@@ -77,10 +78,10 @@ circCenter = 0
 
 def clbk_cam(msg):
     global justDetected, closeBall, radius, circCenter
-    justDetected = msg.data[0]
-    closeBall = msg.data[1]
-    radius = msg.data[2]
-    circCenter = msg.data[3]
+    justDetected = msg.justDetected.data
+    closeBall = msg.closeBall.data
+    radius = msg.radius.data
+    circCenter = msg.circCenter.data
 
 
 def user_says(stateCalling):
@@ -209,15 +210,15 @@ class MIRO_Sleep(smach.State):
     # Exit NORMAL
 
     def execute(self, userdata):
-        global justDetected
+        global lastDetected
         rospy.logerr('sleep')
 
         # Go to kennel
-        #move_dog([0, 0, 0])
+        move_dog([0, 0, 0])
         time.sleep(1)
 
         # Reset previously seen ball variable
-        justDetected = -2
+        lastDetected = -2
 
         rospy.logerr('exit sleep')
         return 'normal_command'
@@ -243,7 +244,7 @@ class MIRO_Normal(smach.State):
     # End of the loop: exit SLEEP
 
     def execute(self, userdata):
-        global justDetected, justDetected
+        global justDetected, lastDetected
 
         rospy.logerr('normal')
         time.sleep(2)
@@ -263,8 +264,8 @@ class MIRO_Normal(smach.State):
                     rospy.logerr('a ball was detected')
 
                     # Check if it's a new ball or the same as before
-                    if justDetected != justDetected:
-                        justDetected = justDetected
+                    if justDetected != lastDetected:
+                        lastDetected = justDetected
                         rospy.logerr('and it is %s', colors[justDetected])
 
                         # Go to track state
@@ -355,7 +356,7 @@ class MIRO_Play(smach.State):
         global moveTo, ballsPos, colorName, justDetected
 
         rospy.logerr('play')
-        justDetected = -2
+        lastDetected = -2
 
         for loops in range(0, 10):
 
@@ -496,7 +497,7 @@ def main():
     # Control camera
     # camera_manager()
 
-    sub_cam = rospy.Subscriber('camera_info', Int64MultiArray, clbk_cam)
+    sub_cam = rospy.Subscriber('camera_info', camera_msg, clbk_cam)
 
     # Control odometery
     sub_odom = rospy.Subscriber('odom', Odometry, clbk_odom)

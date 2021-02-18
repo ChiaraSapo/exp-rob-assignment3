@@ -27,6 +27,7 @@ from std_msgs.msg import Int64MultiArray  # Float64, UInt32,
 # import subprocess
 # import roslaunch
 from tf import transformations
+from exp_assignment3.msg import camera_msg
 
 # Color limits and meanings
 blackLower = (0, 0, 0)
@@ -85,10 +86,9 @@ class camera_manager_fnct:
         self.image_pub = rospy.Publisher("/output/image_raw/compressed",
                                          CompressedImage, queue_size=1)
         self.cam_pub = rospy.Publisher(
-            "/camera_info", Int64MultiArray, queue_size=1)
+            "/camera_info", camera_msg, queue_size=1)
 
-        self.to_send = Int64MultiArray()
-        self.to_send.data = []
+        self.to_send = camera_msg()
 
         # Subscribed Topic
         self.subscriber = rospy.Subscriber(
@@ -140,7 +140,10 @@ class camera_manager_fnct:
                     justDetected = -1
                     closeBall = -1
 
-            self.to_send.data = [justDetected, closeBall, radius, circCenter]
+            self.to_send.justDetected.data = justDetected
+            self.to_send.closeBall.data = closeBall
+            self.to_send.radius.data = radius
+            self.to_send.circCenter.data = circCenter
             self.cam_pub.publish(self.to_send)
 
             cv2.imshow('window', image_np)

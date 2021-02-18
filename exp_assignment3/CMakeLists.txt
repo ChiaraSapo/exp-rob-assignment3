@@ -56,11 +56,11 @@ find_package (OpenCV REQUIRED)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
+add_message_files(
+   FILES
+   camera_msg.msg
 #   Message2.msg
-# )
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -82,7 +82,7 @@ generate_messages(
    DEPENDENCIES
    geometry_msgs
    actionlib_msgs
-   #std_msgs  # Or other packages containing msgs
+   std_msgs  # Or other packages containing msgs
  )
 
 ################################################
@@ -118,7 +118,7 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES exp_assignment3
 #  CATKIN_DEPENDS roscpp rospy
-#  DEPENDS system_lib
+#CATKIN_DEPENDS cv_bridge rospy sensor_msgs actionlib_msgs nav_msgs std_msgs geometry_msgs tf 
   DEPENDS OpenCV
 )
 
@@ -212,8 +212,9 @@ include_directories(
 ## Add gtest based cpp test target and link libraries
 # catkin_add_gtest(${PROJECT_NAME}-test test/test_exp_assignment3.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
+  #target_link_libraries(${PROJECT_NAME}_node   ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} )
 # endif()
+
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
