@@ -17,7 +17,6 @@ from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist, Point, Pose, PoseStamped
 from nav_msgs.msg import Odometry
 from gazebo_msgs.msg import LinkState
-from tf import transformations
 import math
 import actionlib
 import actionlib.msg
@@ -26,32 +25,16 @@ from scipy.ndimage import filters
 import imutils
 import cv2
 from sensor_msgs.msg import CompressedImage
-from std_msgs.msg import Float64, UInt32
+from std_msgs.msg import Float64, UInt32, Int64MultiArray
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 import signal
 import subprocess
 import roslaunch
+from tf import transformations
 
-
-# Color limits and meanings
-blackLower = (0, 0, 0)
-blackUpper = (5, 50, 50)
-redLower = (0, 50, 50)
-redUpper = (5, 255, 255)
-yellowLower = (25, 50, 50)
-yellowUpper = (35, 255, 255)
-greenLower = (50, 50, 50)
-greenUpper = (70, 255, 255)
-blueLower = (100, 50, 50)
-blueUpper = (130, 255, 255)
-magentaLower = (125, 50, 50)
-magentaUpper = (150, 255, 255)
-lowerValues = [blackLower, redLower, yellowLower,
-               greenLower, blueLower, magentaLower]
-upperValues = [blackUpper, redUpper, yellowUpper,
-               greenUpper, blueUpper, magentaUpper]
 colorName = ['entrance', 'closet', 'kitchen',
              'livingRoom', 'bedroom', 'bathroom']
+colors = ['black', 'red', 'yellow', 'green', 'blue', 'magenta']
 
 # Balls positions
 blackPos = [0, 0]
@@ -62,34 +45,58 @@ bluePos = [0, 0]
 magentaPos = [0, 0]
 ballsPos = [blackPos, redPos, yellowPos, greenPos, bluePos, magentaPos]
 
-# Last detected ball, close ball
-lastDetected = -1
+# Variables for balls
+justDetected = -1
 closeBall = -1
 desiredRoom = -1
+justDetected = -2
 
 # Robot positions
 position_ = Point()
 pose_ = Pose()
 yaw_ = 0
+yaw_precision_2_ = 1
 
 # Desired robot position
 moveTo = [0, 0, 0]
 
 # Velocity publisher to go near ball
 vel_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=1)
+vel_to_ball = Twist()
+vel_to_ball.linear.x = 0
+vel_to_ball.linear.y = 0
+vel_to_ball.linear.z = 0
+vel_to_ball.angular.x = 0
+vel_to_ball.angular.y = 0
+vel_to_ball.angular.z = 0
+
+# Variables to move towards the balll
+radius = 0
+circCenter = 0
+
+
+def clbk_cam(msg):
+    global justDetected, closeBall, radius, circCenter
+    justDetected = msg.data[0]
+    closeBall = msg.data[1]
+    radius = msg.data[2]
+    circCenter = msg.data[3]
 
 
 def user_says(stateCalling):
 
-    if stateCalling == 0:  # Normal behaviour
+    # Called from Normal behaviour
+    if stateCalling == 0:
         userVoice = 'play'  # random.choice(['play', ''])
         rospy.logerr('user said: %s', userVoice)
 
-    elif stateCalling == 1:  # Play behaviour
+    # Called from Play behaviour
+    elif stateCalling == 1:
         i = random.randrange(0, 6)
         comm = "go to %s" % (colorName[0])
         userVoice = comm
-        rospy.logerr('user said to go to %s', colorName[0])
+        rospy.logerr('user said to go to %s which is color %s',
+                     colorName[i], colors[i])
 
     else:
         rospy.logerr('user_says function called without input')
@@ -97,76 +104,6 @@ def user_says(stateCalling):
 
     return userVoice
 
-
-class camera_manager:
-
-    def __init__(self):
-
-        # Init publishers
-        self.image_pub = rospy.Publisher("/output/image_raw/compressed",
-                                         CompressedImage, queue_size=1)
-        self.vel_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=1)
-        # self.camera_pub = rospy.Publisher("/joint_position_controller/command", Float64, queue_size=1)
-
-        # Subscribed Topic
-        self.subscriber = rospy.Subscriber(
-            "/camera1/image_raw/compressed", CompressedImage, self.callback,  queue_size=1)
-
-    def callback(self, ros_data):
-
-        global upperValues
-        global lowerValues
-        global colorName
-        global ballsPos, lastDetected
-        global position_, closeBall
-
-        # Convert to cv2
-        np_arr = np.fromstring(ros_data.data, np.uint8)
-        image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-        blurred = cv2.GaussianBlur(image_np, (11, 11), 0)
-        hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-
-        # Create masks
-        for numMask in range(0, 6):
-
-            mask = cv2.inRange(hsv, lowerValues[numMask], upperValues[numMask])
-            mask = cv2.erode(mask, None, iterations=2)
-            mask = cv2.dilate(mask, None, iterations=2)
-
-            cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
-                                    cv2.CHAIN_APPROX_SIMPLE)
-            cnts = imutils.grab_contours(cnts)
-            center = None
-
-            if len(cnts) > 0:
-                c = max(cnts, key=cv2.contourArea)
-                ((x, y), radius) = cv2.minEnclosingCircle(c)
-                M = cv2.moments(c)
-                center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
-
-                vel_Play = Twist()
-
-                # Publish robot vel
-                # vel_Play.angular.z = -0.002*(center[0]-400)
-                # vel_Play.linear.x = -0.01*(radius-100)
-                # self.vel_pub.publish(vel_Play)
-
-                rospy.logerr('radius %d', radius)
-
-                if radius > 10 and radius < 50:
-                    lastDetected = numMask
-                    closeBall = -1
-
-                elif radius >= 50:
-                    lastDetected = numMask
-                    closeBall = 1
-
-                else:
-                    lastDetected = -1
-                    closeBall = -1
-
-            cv2.imshow('window', image_np)
-            cv2.waitKey(2)
 
 # This function is a client for the robot motion server. It sends the desired position.
 
@@ -177,11 +114,11 @@ def clbk_odom(msg):
     global pose_
     global yaw_
 
-    # position
+    # Read position
     position_ = msg.pose.pose.position
     pose_ = msg.pose.pose
 
-    # yaw
+    # Read yaw
     quaternion = (
         msg.pose.pose.orientation.x,
         msg.pose.pose.orientation.y,
@@ -191,36 +128,70 @@ def clbk_odom(msg):
     yaw_ = euler[2]
 
 
-def move_dog(target):  # then add orientation
+def normalize_angle(angle):
+    if(math.fabs(angle) > math.pi):
+        angle = angle - (2 * math.pi * angle) / (math.fabs(angle))
+    return angle
 
-    # Source: https://hotblackrobotics.github.io/en/blog/2018/01/29/action-client-py/
+
+def move_dog(target):  # then add orientation
+    global yaw_, pub, yaw_precision_2_, vel_pub
+
+    kp_a = 3.0
+    ub_a = 0.6
+    lb_a = -0.5
 
     rospy.logerr('move dog started with data %d %d', target[0], target[1])
 
-    client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
-    client.wait_for_server()
+    # Adjust yaw angle
+    while True:
+        rospy.logerr('adjust yaw angle')
+        desired_yaw = math.atan2(
+            target[1] - position_.y, target[0] - position_.x)
+        err_yaw = normalize_angle(desired_yaw - yaw_)
 
-    # rospy.loginfo('Going to %d %d with angle %d', target[0], target[1], target[2])
+        twist_msg = Twist()
+
+        if math.fabs(err_yaw) > yaw_precision_2_:
+            twist_msg.angular.z = kp_a*err_yaw
+            if twist_msg.angular.z > ub_a:
+                twist_msg.angular.z = ub_a
+            elif twist_msg.angular.z < lb_a:
+                twist_msg.angular.z = lb_a
+
+        # Publish velocity directly on cmd_vel topic
+        vel_pub.publish(twist_msg)
+
+        if math.fabs(err_yaw) <= yaw_precision_2_:
+            break
+
+    # Move to target position
+    rospy.logerr('now set target')
+
+    # Call MoveBase service
+    client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
+    client.cancel_goal
+    client.wait_for_server()
 
     goal = MoveBaseGoal()
     goal.target_pose.header.frame_id = "map"
     goal.target_pose.header.stamp = rospy.Time.now()
-
     goal.target_pose.pose.position.x = target[0]
     goal.target_pose.pose.position.y = target[1]
+    goal.target_pose.pose.position.z = 0
+    goal.target_pose.pose.orientation.x = 0
+    goal.target_pose.pose.orientation.y = 0
+    goal.target_pose.pose.orientation.z = 0
     goal.target_pose.pose.orientation.w = 1.0
 
     client.send_goal(goal)
     wait = client.wait_for_result()
-
-    rospy.logerr('Almost there')
 
     if not wait:
         rospy.logerr("Action server not available!")
         rospy.signal_shutdown("Action server not available!")
     else:
         return client.get_result()
-
 
 # Sleep state of the smach machine.
 
@@ -238,9 +209,15 @@ class MIRO_Sleep(smach.State):
     # Exit NORMAL
 
     def execute(self, userdata):
+        global justDetected
         rospy.logerr('sleep')
-        # move_dog([0, 0, 0])
+
+        # Go to kennel
+        #move_dog([0, 0, 0])
         time.sleep(1)
+
+        # Reset previously seen ball variable
+        justDetected = -2
 
         rospy.logerr('exit sleep')
         return 'normal_command'
@@ -266,26 +243,43 @@ class MIRO_Normal(smach.State):
     # End of the loop: exit SLEEP
 
     def execute(self, userdata):
+        global justDetected, justDetected
 
         rospy.logerr('normal')
         time.sleep(2)
 
         for loops in range(0, 10):
+            time.sleep(1)
 
             # Launch explore for autonomous exploration
             command = ["roslaunch", "explore_lite", "explore.launch"]
             p = subprocess.Popen(command)
 
-            # Check if ball is detected
-            for loops2 in range(0, 20):
-                time.sleep(5)
-                if lastDetected != -1:
-                    p.terminate()
-                    time.sleep(7)
-                    return 'n_track_command'
+            for loops2 in range(0, 15):
+                time.sleep(3)
+
+                # Check if ball is detected
+                if justDetected != -1:
+                    rospy.logerr('a ball was detected')
+
+                    # Check if it's a new ball or the same as before
+                    if justDetected != justDetected:
+                        justDetected = justDetected
+                        rospy.logerr('and it is %s', colors[justDetected])
+
+                        # Go to track state
+                        p.terminate()
+                        time.sleep(7)
+
+                        return 'n_track_command'
+
+                    else:
+                        rospy.logerr('but i already knew it')
 
             # Listen to user
             if user_says(0) == 'play':
+                rospy.logerr('user said play')
+
                 p.terminate()
                 time.sleep(7)
                 return 'play_command'
@@ -308,29 +302,31 @@ class N_Track(smach.State):
     # Exit NORMAL
 
     def execute(self, userdata):
-        global vel_pub, closeBall
+        global vel_pub, closeBall, colorName, circCenter
 
         rospy.logerr('N_track')
         time.sleep(2)
 
         # Move closer to the ball
         rospy.logerr('Moving closer to ball')
-        vel_Play = Twist()
         while closeBall == -1:
-            vel_Play.linear.x = 0.1
-            vel_pub.publish(vel_Play)
+            vel_to_ball.angular.z = -0.002*(circCenter-400)
+            vel_to_ball.linear.x = -0.01*(radius-100)
+            vel_pub.publish(vel_to_ball)
 
         # Stop dog
         rospy.logerr('Stopping in front of ball')
-        vel_Play.linear.x = 0
-        vel_pub.publish(vel_Play)
+        for i in range(0, 3):
+            vel_to_ball.linear.x = 0
+            vel_pub.publish(vel_to_ball)
+        time.sleep(3)
 
         # If not saved yet, save ball's position
-        if ballsPos[lastDetected] == [0, 0]:
-            ballsPos[lastDetected] = [position_.x, position_.y]
+        if ballsPos[justDetected] == [0, 0]:
+            ballsPos[justDetected] = [position_.x, position_.y]
 
             rospy.logerr('Saved position of %s ball as %d, %d approximately',
-                         colorName[lastDetected], position_.x, position_.y)
+                         colors[justDetected], position_.x, position_.y)
 
         return 'normal_command'
 
@@ -346,9 +342,6 @@ class MIRO_Play(smach.State):
         smach.State.__init__(self,
                              outcomes=['normal_command', 'find_command'])
 
-        self.camera_pub = rospy.Publisher("/joint_position_controller/command",
-                                          Float64, queue_size=1)
-
     # In a loop:
     # Go to human
     # Wait for a goto command
@@ -359,15 +352,17 @@ class MIRO_Play(smach.State):
     # End of the loop: exit NORMAL
 
     def execute(self, userdata):
-        global moveTo, ballsPos, colorName
+        global moveTo, ballsPos, colorName, justDetected
 
         rospy.logerr('play')
+        justDetected = -2
 
         for loops in range(0, 10):
 
-            # Move to the human
+            # Move to the human, unless dog is already near him
             rospy.logerr('moving to human')
-            move_dog([-5, 8, 0])
+            if (position_.x > -7 or position_.x < -3) and (position_.y > 10 or position_.y < 6):
+                move_dog([-5, 8, 0])
 
             # Listen to human
             rospy.logerr('listen to user')
@@ -414,7 +409,7 @@ class MIRO_Find(smach.State):
     # End of the loop: exit PLAY
 
     def execute(self, userdata):
-        global lastDetected
+        global justDetected
 
         rospy.logerr('find')
 
@@ -424,16 +419,17 @@ class MIRO_Find(smach.State):
             command = command = ["roslaunch", "explore_lite", "explore.launch"]
             p = subprocess.Popen(command)
 
-            for loops2 in range(0, 10):
+            for loops2 in range(0, 15):
 
                 # Check if ball is detected
-                if lastDetected != -1:
+                if justDetected != -1:
                     p.terminate()
                     time.sleep(7)
+
                     return 'f_track_command'
 
-            p.terminate()
-            time.sleep(7)
+        p.terminate()
+        time.sleep(7)
 
         return 'play_command'
 
@@ -451,40 +447,44 @@ class F_Track(smach.State):
     # - No: exit FIND
 
     def execute(self, userdata):
-        global moveTo, vel_pub, closeBall, lastDetected, position_, ballsPos, desiredRoom
+        global moveTo, vel_pub, closeBall, justDetected, position_, ballsPos, desiredRoom
 
         rospy.logerr('f_track')
 
         # Move closer to the ball
-        vel_Play = Twist()
-
         while closeBall == -1:
-            vel_Play.linear.x = 0.1
-            vel_pub.publish(vel_Play)
+            vel_to_ball.angular.z = -0.002*(circCenter-400)
+            vel_to_ball.linear.x = -0.01*(radius-100)
+            vel_pub.publish(vel_to_ball)
 
         # Stop dog
-        vel_Play.linear.x = 0
-        vel_pub.publish(vel_Play)
+        rospy.logerr('Stopping in front of ball')
+        for i in range(0, 3):
+            vel_to_ball.linear.x = 0
+            vel_pub.publish(vel_to_ball)
 
         # If the ball is the one the human asked for, go back to play...
-        if colorName[lastDetected] == colorName[desiredRoom]:
-            rospy.logerr('found the right ball')
+        if colorName[justDetected] == colorName[desiredRoom]:
+            rospy.logerr('I found the right ball')
 
             # If not saved yet, save ball's position
-            if ballsPos[lastDetected] == [0, 0]:
-                ballsPos[lastDetected] = [position_.x, position_.y]
-                rospy.logerr('Saved position of the ball, will not forget it!')
+            if ballsPos[justDetected] == [0, 0]:
+                ballsPos[justDetected] = [position_.x, position_.y]
+                rospy.logerr(
+                    'Saved position of the %s ball, will not forget it!', colors[justDetected])
 
             return 'play_command'
 
         # ... if it is not, save its position anyway
         else:
             rospy.logerr(
-                'found the wrong ball, saving its position anyway, may turn out useful')
+                'I found the wrong ball')
 
             # If not saved yet, save ball's position
-            if ballsPos[lastDetected] == [0, 0]:
-                ballsPos[lastDetected] = [position_.x, position_.y]
+            if ballsPos[justDetected] == [0, 0]:
+                ballsPos[justDetected] = [position_.x, position_.y]
+                rospy.logerr(
+                    'Saved position of the %s ball anyway, may turn out useful', colors[justDetected])
 
             return 'find_command'
 
@@ -493,8 +493,12 @@ def main():
 
     rospy.init_node('state_manager')
 
-    camera_manager()
+    # Control camera
+    # camera_manager()
 
+    sub_cam = rospy.Subscriber('camera_info', Int64MultiArray, clbk_cam)
+
+    # Control odometery
     sub_odom = rospy.Subscriber('odom', Odometry, clbk_odom)
 
     # Create a SMACH state machine

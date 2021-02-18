@@ -11,6 +11,7 @@
  <param name="color" value="none" />
 
 	<node name='state_manager' pkg="exp_assignment3" type="state_manager.py" output="screen" />
+<node name='camera_manager' pkg="exp_assignment3" type="camera_manager.py" output="screen" />
 
     
     <include file="$(find exp_assignment3)/launch/move_base.launch"></include>
