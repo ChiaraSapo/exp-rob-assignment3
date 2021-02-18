@@ -2,6 +2,9 @@ Next time: rewatch https://web.microsoftstream.com/video/3aee2aaf-c0f1-48dd-b27f
 
 # A little bit of theory
 
+## OpenCV
+Computer vision library for ROS: package vision_opencv and cv_bridge. This last one transforms openCV output format to ROS format adn vice versa: works as interface between ROS and openCV. 
+
 ## Creating a map: gmapping
 The gmapping package provides laser-based SLAM (Simultaneous Localization and Mapping), as a ROS node called slam_gmapping. Using slam_gmapping, you can create a 2-D occupancy grid map from laser and pose data collected by a mobile robot. 
 As a launch file for gmapping I modified the sim_w1.launch file (given) to adapt it to my world and robot. The parameters of the gmapping node were also modified to accept the link_chassis link as base_frame.
@@ -78,7 +81,7 @@ It implements a greedy frontier based exploration: explore greedily until no fro
 
 # urdf 
 - human.urdf (given): person
-- robot.gazebo and robot.xacro: improvements of the files of assignment  (a head hokuyo laser sensor was added to the previous robot, the head revolute joint was substituted with a fixed joint since the robot didn't need to rotate its head anymore)
+- robot.gazebo and robot.xacro: improvements of the robot of assignment 2 (a head hokuyo laser sensor was added to the previous robot, the head revolute joint was substituted with a fixed joint since the robot didn't need to rotate its head anymore). Now the robot comprises of: camera + laser scan
 
 # Scripts
 ## State manager
@@ -115,10 +118,12 @@ The user is implemented by the function user_says in which he can interact by se
 
 ## Camera_manager
 
-The camera was used by implementing cv bridge in class camera_manager_fnct. In particular, this function continuously checks the environment for the colored balls and, if one is seen, it sets some parameters to be read by the smach machine:
+The camera was used by implementing cv bridge in class camera_manager_fnct. It subscribes to /camera1/image_raw/compressed to receive images and publishes on /output/image_raw/compressed to show them.
+
+In particular, the camera_manager_fnct class continuously checks the environment for the colored balls and, if one is seen, it sets some parameters to be read by the smach machine:
 - justDetected indicates the ball that has just been detected
 - closeBall indicates that the ball is close (threshold of proximity was chosen manually)
-- radius, center of the ball 
+- radius, center of the ball as seen from the camera.
 - 
 It then publishes on the topic "camera_info" an array of integers that contains, in order: lastDetected, closeBall, radius, center
 
