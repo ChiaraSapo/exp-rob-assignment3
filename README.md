@@ -71,13 +71,13 @@ It implements a greedy frontier based exploration: explore greedily until no fro
 
 # Folders
 # worlds
-- house2.world (given, slightly modified): simulation with a custom-built world: an environment divided into 6 rooms. In each room, there is a ball of a different colour. Each colour is therefore associated to a different room. The robot has an initial position of: x = -5.0, y = 8.0, and with a yaw of -1.57 rad. 
+- **house2.world** (given, slightly modified): simulation with a custom-built world: an environment divided into 6 rooms. In each room, there is a ball of a different colour. Each colour is therefore associated to a different room. The robot has an initial position of: x = -5.0, y = 8.0, and with a yaw of -1.57 rad. 
 
 # launch 
-- exp3.launch: sets my params, launches the other useful launch files 
-- gmapping.launch: implements gmapping
-- move_base: implements movebase
-- sim_w1: creates the gazebo enviroment
+- **exp3**: sets my params, launches the other useful launch files 
+- **gmapping**: implements gmapping
+- **move_base**: implements movebase
+- **sim_w1**: creates the gazebo enviroment
 
 # urdf 
 - human.urdf (given): person
@@ -89,8 +89,9 @@ It implements a smach machine where different states are described:
 <p align="center">
   <img height="400" width="500" src="https://github.com/ChiaraSapo/exp-rob-assignment3/blob/master/exp_assignment3/images/Screenshot%20from%202020-12-28%2016-05-37.png?raw=true "Title"">
 </p>
+
 - **sleep** : Dog goes to kennel via MoveBase, stays still for a few seconds, then enters the Normal behaviour.
-- 
+
 - **normal** : In a loop: It starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Normal_track phase. Then the dog listens to human: if it hears a play command it enters in play behaviour. At the end of the loop, if nothing has happened, the dog goes to Sleep.
 
 - **n_track** : The dog gets close to the ball and checks if it already knew its position. In case it didn't, it saves the new position. Then it goes back to Normal state.
@@ -104,11 +105,11 @@ It implements a smach machine where different states are described:
 ### Other important features
 Explore_lite was used by launching and then stopping the explore.launch file from within the states that needed it.
 
-MoveBase was used by creating a simple action client with a MoveBaseAction in the function move_dog. This function first sets the right angle towards the target by directly publishing on the cmd_vel topic, then calls the MoveBase service to go there. MoveBase assures obstacle avoidance but works better if the angle is previously set (problems in moving towards the human during play). 
+MoveBase was used by creating a simple action client with a MoveBaseAction in the **function move_dog**. This function first sets the right angle towards the target by directly publishing on the cmd_vel topic, then calls the MoveBase service to go there. MoveBase assures obstacle avoidance but works better if the angle is previously set (problems in moving towards the human during play). 
 
 The camera info is read by subscribing to the topic camera_info, and the odometry is read by subscribing to the topic odom.
 
-The user is implemented by the function user_says in which he can interact by sending a Play command to the robot, followed by a GoTo command + target location (Entrance, Closet, Living room, Kitchen, Bathroom, Bedroom)
+The user is implemented by the **function user_says** in which he can interact by sending a Play command to the robot, followed by a GoTo command + target location (Entrance, Closet, Living room, Kitchen, Bathroom, Bedroom)
 
 ## Camera_manager
 
