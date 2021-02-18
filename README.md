@@ -116,8 +116,9 @@ The user is implemented by the function user_says in which he can interact by se
 ## Camera_manager
 
 The camera was used by implementing cv bridge in class camera_manager_fnct. In particular, this function continuously checks the environment for the colored balls and, if one is seen, it sets some parameters to be read by the smach machine:
-- lastDetected indicates the ball that has just been detected
+- justDetected indicates the ball that has just been detected
 - closeBall indicates that the ball is close (threshold of proximity was chosen manually)
 - radius, center of the ball 
+- 
 It then publishes on the topic "camera_info" an array of integers that contains, in order: lastDetected, closeBall, radius, center
 
