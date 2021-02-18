@@ -1,11 +1,6 @@
+Next time: maybe implement the yaw, run for a long time.
 
-
-
-The human can interact by:
-Sending a Play command to the robot, followed by a GoTo command + target location (Entrance,
-Closet, Living room, Kitchen, Bathroom, Bedroom)
-
-# A bit of theory
+# A little bit of theory
 
 ## Creating a map: gmapping
 The gmapping package provides laser-based SLAM (Simultaneous Localization and Mapping), as a ROS node called slam_gmapping. Using slam_gmapping, you can create a 2-D occupancy grid map from laser and pose data collected by a mobile robot. 
@@ -106,3 +101,4 @@ The camera was used by implementing cv bridge in function camera_manager. In par
 - lastDetected indicates the ball that has just been detected
 - closeBall indicates that the ball is close (threshold of proximity was chosen manually)
 
+The user is implemented by the function user_says in which he can interact by sending a Play command to the robot, followed by a GoTo command + target location (Entrance, Closet, Living room, Kitchen, Bathroom, Bedroom)
