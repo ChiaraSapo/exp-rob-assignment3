@@ -89,23 +89,12 @@ It implements a smach machine where different states are described:
 <p align="center">
   <img height="400" width="500" src="https://github.com/ChiaraSapo/exp-rob-assignment3/blob/master/exp_assignment3/images/Screenshot%20from%202020-12-28%2016-05-37.png?raw=true "Title"">
 </p>
-### Sleep
-Dog goes to kennel via MoveBase, stays still for a few seconds, then enters the Normal behaviour.
-
-### Normal
-In a loop: It starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Normal_track phase. Then the dog listens to human: if it hears a play command it enters in play behaviour. At the end of the loop, if nothing has happened, the dog goes to Sleep.
-
-### N_track
-The dog gets close to the ball and checks if it already knew its position. In case it didn't, it saves the new position. Then it goes back to Normal state.
-
-### Play
-In a loop: the dog goes to the human, waits for a goto command and, if it hears it, it compares it to the known ball positions to check if it already knows the position the user has said to him. If it knew it, it goes toward that position, and then goes to Normal. However, if it didn't know the room yet, it goes to Find.
-
-### Find
-In a loop: the dog starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Find_track phase. At the end of the loop, if nothing has happened, the dog goes to Play.
-
-### F_track
-The dog gets close to the ball and checks if it ais the desired ball. In case it isn't, it saves its position (if needed) and goes back to Find. If it is, it goes to Play.
+- **Sleep** : Dog goes to kennel via MoveBase, stays still for a few seconds, then enters the Normal behaviour.
+- **Normal** : In a loop: It starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Normal_track phase. Then the dog listens to human: if it hears a play command it enters in play behaviour. At the end of the loop, if nothing has happened, the dog goes to Sleep.
+- **N_track** : The dog gets close to the ball and checks if it already knew its position. In case it didn't, it saves the new position. Then it goes back to Normal state.
+- **Play** : In a loop: the dog goes to the human, waits for a goto command and, if it hears it, it compares it to the known ball positions to check if it already knows the position the user has said to him. If it knew it, it goes toward that position, and then goes to Normal. However, if it didn't know the room yet, it goes to Find.
+- **Find** : In a loop: the dog starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Find_track phase. At the end of the loop, if nothing has happened, the dog goes to Play.
+- **F_track** : The dog gets close to the ball and checks if it ais the desired ball. In case it isn't, it saves its position (if needed) and goes back to Find. If it is, it goes to Play.
    
 ### Other important features
 Explore_lite was used by launching and then stopping the explore.launch file from within the states that needed it.
@@ -121,9 +110,9 @@ The user is implemented by the function user_says in which he can interact by se
 The camera was used by implementing cv bridge in class camera_manager_fnct. It subscribes to /camera1/image_raw/compressed to receive images and publishes on /output/image_raw/compressed to show them.
 
 In particular, the camera_manager_fnct class continuously checks the environment for the colored balls and, if one is seen, it sets some parameters to be read by the smach machine:
-- justDetected indicates the ball that has just been detected
-- closeBall indicates that the ball is close (threshold of proximity was chosen manually)
-- radius, center of the ball as seen from the camera.
-- 
+- **justDetected** indicates the ball that has just been detected
+- **closeBall** indicates that the ball is close (threshold of proximity was chosen manually)
+- **radius**, **center** of the ball as seen from the camera.
+
 It then publishes on the topic "camera_info" an array of integers that contains, in order: lastDetected, closeBall, radius, center
 
