@@ -6,6 +6,8 @@ Next time: maybe implement the yaw, run for a long time.
 Computer vision library for ROS: package vision_opencv and cv_bridge. This last one transforms openCV output format to ROS format adn vice versa: works as interface between ROS and openCV. 
 
 ## Creating a map: gmapping
+http://wiki.ros.org/gmapping
+
 The gmapping package provides laser-based SLAM (Simultaneous Localization and Mapping), as a ROS node called slam_gmapping. Using slam_gmapping, you can create a 2-D occupancy grid map from laser and pose data collected by a mobile robot. 
 As a launch file for gmapping I modified the sim_w1.launch file (given) to adapt it to my world and robot. The parameters of the gmapping node were also modified to accept the link_chassis link as base_frame.
 
@@ -20,6 +22,7 @@ Main topics  published in gmapping:
 
 ## Planning (global + local):MoveBase
 http://wiki.ros.org/move_base
+
 The move_base is a major component of the navigation stack.
 The move_base package provides an implementation of an action that, given a goal in the world, will attempt to reach it with a mobile base. The move_base node links together a global and local planner to accomplish its global navigation task. 
 
@@ -67,6 +70,7 @@ Finally, MoveBase allows some recovery behaviours (when robot gets stuck):
 
 ## Explore autonomously: explore-lite package (+moveBase)
 http://wiki.ros.org/explore_lite
+
 It implements a greedy frontier based exploration: explore greedily until no frontiers can be found, by sending goals to moveBase server.
 
 # Folders
@@ -88,7 +92,6 @@ It implements a greedy frontier based exploration: explore greedily until no fro
   - **justDetected** indicates the ball that has just been detected
   - **closeBall** indicates that the ball is close (threshold of proximity was chosen manually)
   - **radius**, **center** of the ball as seen from the camera.
-
 
 # Scripts
 ## State manager
