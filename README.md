@@ -1,14 +1,4 @@
-first things TODO next time: 
-- check why move dog doesn't work in play behaviour after explore
-- check why dog doesn't stop in front of ball
 
-
-<p align="center">
-  <img height="400" width="500" src="https://github.com/ChiaraSapo/exp-rob-assignment3/blob/master/exp_assignment3/images/Screenshot%20from%202020-12-28%2016-05-37.png?raw=true "Title"">
-</p>
-
-
-To see the states: rosrun smach_viewer smach_viewer.py
 
 
 The human can interact by:
@@ -18,44 +8,68 @@ Closet, Living room, Kitchen, Bathroom, Bedroom)
 # A bit of theory
 
 ## Creating a map: gmapping
-The robot creates a map of the environment by using the ROS package gmapping, that applies a filter based approach to build the map. As a launch file for gmapping I modified the sim_w1.launch file (given) to adapt it to my world and robot. The parameters of the gmapping node were also modified to accept the link_chassis link as base_frame.
+The gmapping package provides laser-based SLAM (Simultaneous Localization and Mapping), as a ROS node called slam_gmapping. Using slam_gmapping, you can create a 2-D occupancy grid map from laser and pose data collected by a mobile robot. 
+As a launch file for gmapping I modified the sim_w1.launch file (given) to adapt it to my world and robot. The parameters of the gmapping node were also modified to accept the link_chassis link as base_frame.
 
-Main topics needed by gmapping: tf (odom) and scan (laser).
+### Main topics
+Main topics needed by gmapping: 
+- tf (odom) 
+- scan (laser).
+Main topics  published in gmapping: 
+- map (occupancy grid)
+- map_metadata
+- entropy (precision).
 
-Main topics  published in gmapping: map (occupancy grid), map_metadata, entropy (precision).
+## Planning (global + local):MoveBase
+http://wiki.ros.org/move_base
+The move_base is a major component of the navigation stack.
+The move_base package provides an implementation of an action that, given a goal in the world, will attempt to reach it with a mobile base. The move_base node links together a global and local planner to accomplish its global navigation task. 
 
-To see the map: in rviz -> add -> by topic -> map. To move via keyboard: rosrun teleop_twist_keyboard teleop_twist_keyboard.py 
+### Default global planners
+- carrot: simple, doesn't work well in complex environments.
+- navfn (based on the Dijkstra to find the path with lowest cost).
+- global: similar to navfn but more flexible. 
+Here the navfn was used.
 
-## Planning: global + local (MoveBase)
-Default global planners: carrot, navfn (Dijkstra), global. I use navfn. 
+### Default local planners: 
+- dinamic window approach
+- elastic band approach
+- teb approach
+Here the dwa was used. It relies on some steps: 
+- sample in robot's control space, obtaining dx, dy, dth,
+- perform forward simulation and score results of different trajectories depending on some predefined metrics,
+- choose the highest-scoring trajectory (i.e. no obstacles on the way),
+- apply the chosen velocity, then repeat.
 
-Default local planners: dinamic window approach, elastic band and teb. I use dwa, that makes some steps: 
-- sample in robot's control space
-- perform forward simulation and score results of different trajectories
-- choose the highest-scoring (i.e. no obstacles on the way) velocity of the mobile base
-- apply it
+### Some parameters to be set
 
-The parameters for the cost map are in the folder param. 
-
-We also need to set the simulation time for the second step: trade-off between longer paths (high) and computational time (low) and also  between flexible trajectories (low) and optimal trajectories (high). Here: time 2. Velocity samples vx, vy, vth (take vth higher: rotating is more complicated). Here: 10 vx-vy, 40 vth. 
-To decide trajectory scoring, local planner maximizes an objective fnct to obtain optimal velocity pairs. The function depends on 3 params you choose: pdist_scale (dist to endpoint of traj), gdist_scale (dist endpoint to local goal), occdist_scale (max obstacle cost along the traj). Here: 5,0,5.
-Other params: yaw goal tolerance (in rad). Here 3.14 (then change!). xy goal tolerance (in meters) Here 0.3
+- sample time (here: 2) that is a tradeoff between: 
+  - high (approx. 5): longer paths but with high computational time
+  - low (approx. 1): shorter paths but with lowe computational time
+- Velocity samples vx, vy (here they are the same), vth . This last one should be chosen higher: rotating is more complicated. Here: 20 vx-vy, 40 vth. 
+- cost function to be minimized depends on 3 params (here: 5,0,5.) 
+  - pdist_scale (dist to endpoint of traj)
+  - gdist_scale (dist endpoint to local goal)
+  - occdist_scale (max obstacle cost along the traj). 
+- yaw goal tolerance (in rad): here 1
+- xy goal tolerance (in meters) Here 0.3
 
 Costmap is composed of 3 layers:
 - static map: interprets the static slam map provided to the navigation stack
-- obstacle map: includes 2D adn 3D obstacles
-- inflation layer: inflated obstacles to calculate cost of each 2D cell (0-255). Params: inflation radius (how far from obstalce is the zero cost of the obstacle itself) + cost scaling factor (inversely proportional to cost of a cell, if low: robot stays farther from obstacles). Costmap resolution.
-Also, there is a global costmap (built before) and a local costmap genreated by using data from robot's sensors in runtime.
-
-Recovery behaviours (when robot gets stuck): clear costmap recovery (set local costmap state to the same of global), rotate recovery (rotate of 360°). If they don't work, implement other methods (ex: go back to previous pas, or set a temporary goal close to the robot).
-
-The move_base ROS Node, is a major component of the navigation stack which allows to configure, run and interact with the latter. The move_base node implements a SimpleActionServer, an action server with a single goal policy, taking in goals of geometry_msgs/PoseStamped message type. To communicate with this node, the SimpleActionClient interface is used. The move_base node tries to achieve a desired pose by combining a global and a local motion planners to accomplish a navigation task which includes obstacle avoidance. (source https://hotblackrobotics.github.io/en/blog/2018/01/29/action-client-py/)
-
+- obstacle map: includes 2D and 3D obstacles
+- inflation layer: has inflated obstacles to calculate cost of each 2D cell (0-255). Depends on two parameters: 
+  - inflation radius (how far from an obstacle is the zero cost of the obstacle itself) 
+  - cost scaling factor (inversely proportional to cost of a cell. If low: robot stays farther from obstacles). 
+Then we need to set 
+- costmap resolution (for both global and local costmap)
+- footprint of the robot (here indicated as a circle of which we indicate the radius)
+Finally, MoveBase allows some recovery behaviours (when robot gets stuck): 
+- clear costmap recovery (set local costmap state to the same of global)
+- rotate recovery (rotate of 360°)
 
 ## Explore autonomously: explore-lite package (+moveBase)
-Greedy frontier based exploration: explore greedily until no frontiers can be found, by ending goals to moveBase server. Teh costmap is the one of movebase, not another. Link chassis as base frame also here.
-Sets frontiers to explore
-
+http://wiki.ros.org/explore_lite
+It implements a greedy frontier based exploration: explore greedily until no frontiers can be found, by sending goals to moveBase server.
 
 # Folders
 # worlds
@@ -72,7 +86,10 @@ Sets frontiers to explore
 - robot.gazebo and robot.xacro: improvements of the files of assignment  (a head hokuyo laser sensor was added to the previous robot, the head revolute joint was substituted with a fixed joint since the robot didn't need to rotate its head anymore)
 
 # Scripts
-- state_manager: Different states are described:
+- state_manager: implements a smach machine where different states are described:
+<p align="center">
+  <img height="400" width="500" src="https://github.com/ChiaraSapo/exp-rob-assignment3/blob/master/exp_assignment3/images/Screenshot%20from%202020-12-28%2016-05-37.png?raw=true "Title"">
+</p>
   - SLEEP: Dog goes to kennel via MoveBase, stays still for a few seconds, then enters the Normal behaviour.
   - NORMAL: In a loop:
     It starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Normal_track phase. Then the dog listens to human: if it hears a play command it enters in play behaviour. At the end of the loop, if nothing has happened, the dog goes to Sleep.
@@ -85,5 +102,7 @@ Explore_lite was used by launching and then stopping the explore.launch file fro
 
 MoveBase was used by creating a simple action client with a MoveBaseAction in the function move_dog. This function first sets the right angle towards the target by directly publishing on the cmd_vel topic, then calls the MoveBase service to go there. MoveBase assures obstacle avoidance but works better if the angle is previously set (problems in moving towards the human during play). 
 
-The camera was used by implementing cv bridge in function camera_manager.
+The camera was used by implementing cv bridge in function camera_manager. In particular, this function continuously checks the environment for the colored balls and, if one is seen, it sets some parameters to be read by the smach machine:
+- lastDetected indicates the ball that has just been detected
+- closeBall indicates that the ball is close (threshold of proximity was chosen manually)
 
