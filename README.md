@@ -2,6 +2,9 @@ Next time: maybe implement the yaw, run for a long time.
 
 # A little bit of theory
 
+## OpenCV
+Computer vision library for ROS: package vision_opencv and cv_bridge. This last one transforms openCV output format to ROS format adn vice versa: works as interface between ROS and openCV. 
+
 ## Creating a map: gmapping
 The gmapping package provides laser-based SLAM (Simultaneous Localization and Mapping), as a ROS node called slam_gmapping. Using slam_gmapping, you can create a 2-D occupancy grid map from laser and pose data collected by a mobile robot. 
 As a launch file for gmapping I modified the sim_w1.launch file (given) to adapt it to my world and robot. The parameters of the gmapping node were also modified to accept the link_chassis link as base_frame.
@@ -68,17 +71,17 @@ It implements a greedy frontier based exploration: explore greedily until no fro
 
 # Folders
 # worlds
-- house2.world (given, slightly modified): simulation with a custom-built world: an environment divided into 6 rooms. In each room, there is a ball of a different colour. Each colour is therefore associated to a different room. The robot has an initial position of: x = -5.0, y = 8.0, and with a yaw of -1.57 rad. 
+- **house2.world** (given, slightly modified): simulation with a custom-built world: an environment divided into 6 rooms. In each room, there is a ball of a different colour. Each colour is therefore associated to a different room. The robot has an initial position of: x = -5.0, y = 8.0, and with a yaw of -1.57 rad. 
 
 # launch 
-- exp3.launch: sets my params, launches the other useful launch files 
-- gmapping.launch: implements gmapping
-- move_base: implements movebase
-- sim_w1: creates the gazebo enviroment
+- **exp3**: sets my params, launches the other useful launch files 
+- **gmapping**: implements gmapping
+- **move_base**: implements movebase
+- **sim_w1**: creates the gazebo enviroment
 
 # urdf 
 - human.urdf (given): person
-- robot.gazebo and robot.xacro: improvements of the files of assignment  (a head hokuyo laser sensor was added to the previous robot, the head revolute joint was substituted with a fixed joint since the robot didn't need to rotate its head anymore)
+- robot.gazebo and robot.xacro: improvements of the robot of assignment 2 (a head hokuyo laser sensor was added to the previous robot, the head revolute joint was substituted with a fixed joint since the robot didn't need to rotate its head anymore). Now the robot comprises of: camera + laser scan
 
 # Scripts
 ## State manager
@@ -86,39 +89,36 @@ It implements a smach machine where different states are described:
 <p align="center">
   <img height="400" width="500" src="https://github.com/ChiaraSapo/exp-rob-assignment3/blob/master/exp_assignment3/images/Screenshot%20from%202020-12-28%2016-05-37.png?raw=true "Title"">
 </p>
-### Sleep
-Dog goes to kennel via MoveBase, stays still for a few seconds, then enters the Normal behaviour.
 
-### Normal
-In a loop: It starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Normal_track phase. Then the dog listens to human: if it hears a play command it enters in play behaviour. At the end of the loop, if nothing has happened, the dog goes to Sleep.
+- **sleep** : Dog goes to kennel via MoveBase, stays still for a few seconds, then enters the Normal behaviour.
 
-### N_track
-The dog gets close to the ball and checks if it already knew its position. In case it didn't, it saves the new position. Then it goes back to Normal state.
+- **normal** : In a loop: It starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Normal_track phase. Then the dog listens to human: if it hears a play command it enters in play behaviour. At the end of the loop, if nothing has happened, the dog goes to Sleep.
 
-### Play
-In a loop: the dog goes to the human, waits for a goto command and, if it hears it, it compares it to the known ball positions to check if it already knows the position the user has said to him. If it knew it, it goes toward that position, and then goes to Normal. However, if it didn't know the room yet, it goes to Find.
+- **n_track** : The dog gets close to the ball and checks if it already knew its position. In case it didn't, it saves the new position. Then it goes back to Normal state.
 
-### Find
-In a loop: the dog starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Find_track phase. At the end of the loop, if nothing has happened, the dog goes to Play.
+- **play** : In a loop: the dog goes to the human, waits for a goto command and, if it hears it, it compares it to the known ball positions to check if it already knows the position the user has said to him. If it knew it, it goes toward that position, and then goes to Normal. However, if it didn't know the room yet, it goes to Find.
 
-### F_track
-The dog gets close to the ball and checks if it ais the desired ball. In case it isn't, it saves its position (if needed) and goes back to Find. If it is, it goes to Play.
+- **find** : In a loop: the dog starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Find_track phase. At the end of the loop, if nothing has happened, the dog goes to Play.
+
+- **f_track** : The dog gets close to the ball and checks if it ais the desired ball. In case it isn't, it saves its position (if needed) and goes back to Find. If it is, it goes to Play.
    
 ### Other important features
 Explore_lite was used by launching and then stopping the explore.launch file from within the states that needed it.
 
-MoveBase was used by creating a simple action client with a MoveBaseAction in the function move_dog. This function first sets the right angle towards the target by directly publishing on the cmd_vel topic, then calls the MoveBase service to go there. MoveBase assures obstacle avoidance but works better if the angle is previously set (problems in moving towards the human during play). 
+MoveBase was used by creating a simple action client with a MoveBaseAction in the **function move_dog**. This function first sets the right angle towards the target by directly publishing on the cmd_vel topic, then calls the MoveBase service to go there. MoveBase assures obstacle avoidance but works better if the angle is previously set (problems in moving towards the human during play). 
 
 The camera info is read by subscribing to the topic camera_info, and the odometry is read by subscribing to the topic odom.
 
-The user is implemented by the function user_says in which he can interact by sending a Play command to the robot, followed by a GoTo command + target location (Entrance, Closet, Living room, Kitchen, Bathroom, Bedroom)
+The user is implemented by the **function user_says** in which he can interact by sending a Play command to the robot, followed by a GoTo command + target location (Entrance, Closet, Living room, Kitchen, Bathroom, Bedroom)
 
 ## Camera_manager
 
-The camera was used by implementing cv bridge in class camera_manager_fnct. In particular, this function continuously checks the environment for the colored balls and, if one is seen, it sets some parameters to be read by the smach machine:
-- justDetected indicates the ball that has just been detected
-- closeBall indicates that the ball is close (threshold of proximity was chosen manually)
-- radius, center of the ball 
-- 
+The camera was used by implementing cv bridge in class camera_manager_fnct. It subscribes to /camera1/image_raw/compressed to receive images and publishes on /output/image_raw/compressed to show them.
+
+In particular, the camera_manager_fnct class continuously checks the environment for the colored balls and, if one is seen, it sets some parameters to be read by the smach machine:
+- **justDetected** indicates the ball that has just been detected
+- **closeBall** indicates that the ball is close (threshold of proximity was chosen manually)
+- **radius**, **center** of the ball as seen from the camera.
+
 It then publishes on the topic "camera_info" an array of integers that contains, in order: lastDetected, closeBall, radius, center
 
