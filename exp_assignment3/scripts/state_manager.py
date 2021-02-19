@@ -76,6 +76,8 @@ radius = 0
 circCenter = 0
 
 
+# Callback function for the camera information
+
 def clbk_cam(msg):
     global justDetected, closeBall, radius, circCenter
     justDetected = msg.justDetected.data
@@ -83,6 +85,8 @@ def clbk_cam(msg):
     radius = msg.radius.data
     circCenter = msg.circCenter.data
 
+
+# Function to simulate the human speaking
 
 def user_says(stateCalling):
 
@@ -106,8 +110,7 @@ def user_says(stateCalling):
     return userVoice
 
 
-# This function is a client for the robot motion server. It sends the desired position.
-
+# Callback function for the odometry of the robot
 
 def clbk_odom(msg):
 
@@ -129,14 +132,33 @@ def clbk_odom(msg):
     yaw_ = euler[2]
 
 
+# Function to normalize the yaw angle
+
 def normalize_angle(angle):
     if(math.fabs(angle) > math.pi):
         angle = angle - (2 * math.pi * angle) / (math.fabs(angle))
     return angle
 
 
-def move_dog(target):  # then add orientation
-    global yaw_, pub, yaw_precision_2_, vel_pub
+'''
+class check_pos:
+
+    # Callback function for the camera image
+    def check_pos(self, target):
+
+        if math.fabs(position_.x - target[0]) < 0.5 and math.fabs(position_.y - target[1]) < 0.5:
+            rospy.logerr('arrived')
+            client.cancel_all_goals()
+            return 1
+'''
+
+
+# Function to move the dog to a target position. It first sets the right yaw angle
+# by directly publishing on the /cmd_vel topic then implements a client to the
+# MoveBase service to move the robot to the target position while avoiding obstacles.
+
+def move_dog(target):
+    global yaw_, pub, yaw_precision_2_, vel_pub, position_
 
     kp_a = 3.0
     ub_a = 0.6
@@ -146,7 +168,6 @@ def move_dog(target):  # then add orientation
 
     # Adjust yaw angle
     while True:
-        rospy.logerr('adjust yaw angle')
         desired_yaw = math.atan2(
             target[1] - position_.y, target[0] - position_.x)
         err_yaw = normalize_angle(desired_yaw - yaw_)
@@ -186,16 +207,23 @@ def move_dog(target):  # then add orientation
     goal.target_pose.pose.orientation.w = 1.0
 
     client.send_goal(goal)
-    wait = client.wait_for_result()
 
-    if not wait:
-        rospy.logerr("Action server not available!")
-        rospy.signal_shutdown("Action server not available!")
-    else:
-        return client.get_result()
+    #wait = client.wait_for_result()
+    # rospy.logerr('aaaaaaaaaaa')
+    while math.fabs(position_.x - target[0]) > 0.3 or math.fabs(position_.y - target[1]) > 0.3:
+        time.sleep(1)
+    rospy.logerr('arrived')
+    client.cancel_all_goals()
+    return 1
+
+#    if not wait:
+#        rospy.logerr("Action server not available!")
+#        rospy.signal_shutdown("Action server not available!")
+#    else:
+#        return client.get_result()
+
 
 # Sleep state of the smach machine.
-
 
 class MIRO_Sleep(smach.State):
 
@@ -205,6 +233,7 @@ class MIRO_Sleep(smach.State):
         smach.State.__init__(self,
                              outcomes=['normal_command'])
 
+    # Execute function of the state:
     # Go to kennel
     # Stay still for 5 seconds
     # Exit NORMAL
@@ -214,7 +243,7 @@ class MIRO_Sleep(smach.State):
         rospy.logerr('sleep')
 
         # Go to kennel
-        move_dog([0, 0, 0])
+        move_dog([-5, 6, 0])
         time.sleep(1)
 
         # Reset previously seen ball variable
@@ -235,6 +264,7 @@ class MIRO_Normal(smach.State):
         smach.State.__init__(self,
                              outcomes=['sleep_command', 'play_command', 'n_track_command'])
 
+    # Execute function of the state:
     # Move around: ball?
     # - Yes: exit N_TRACK
     # - No: Continue
@@ -297,6 +327,7 @@ class N_Track(smach.State):
         smach.State.__init__(self,
                              outcomes=['normal_command'])
 
+    # Execute function of the state:
     # Go close to the ball: did you know its position yet?
     # - Yes: continue
     # - No: save it
@@ -343,6 +374,7 @@ class MIRO_Play(smach.State):
         smach.State.__init__(self,
                              outcomes=['normal_command', 'find_command'])
 
+    # Execute function of the state:
     # In a loop:
     # Go to human
     # Wait for a goto command
@@ -357,6 +389,10 @@ class MIRO_Play(smach.State):
 
         rospy.logerr('play')
         lastDetected = -2
+
+        if ballsPos[0] != [0, 0] and ballsPos[1] != [0, 0] and ballsPos[2] != [0, 0] and ballsPos[3] != [0, 0] and ballsPos[4] != [0, 0] and ballsPos[5] != [0, 0]:
+            rospy.logerr('ALL BALLS HAVE BEEN DETECTED! Positions:')
+            rospy.logerr(ballsPos)
 
         for loops in range(0, 10):
 
@@ -403,6 +439,7 @@ class MIRO_Find(smach.State):
         smach.State.__init__(self,
                              outcomes=['play_command', 'f_track_command'])
 
+    # Execute function of the state:
     # In a loop:
     # Move towards goal (may change it): ball?
     # - Yes: exit F_TRACK
@@ -443,6 +480,7 @@ class F_Track(smach.State):
         smach.State.__init__(self,
                              outcomes=['find_command', 'play_command'])
 
+    # Execute function of the state:
     # Go close to the ball: is it the desired position? (no need to check if saved: u enter here only if it's not)
     # - Yes: exit PLAY
     # - No: exit FIND
@@ -493,9 +531,6 @@ class F_Track(smach.State):
 def main():
 
     rospy.init_node('state_manager')
-
-    # Control camera
-    # camera_manager()
 
     sub_cam = rospy.Subscriber('camera_info', camera_msg, clbk_cam)
 

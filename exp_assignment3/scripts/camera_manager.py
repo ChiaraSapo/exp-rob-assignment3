@@ -80,9 +80,10 @@ circCenter = 0
 
 class camera_manager_fnct:
 
+    # Init function
     def __init__(self):
 
-        # Init publishers
+        # Init publishers and subscribers
         self.image_pub = rospy.Publisher("/output/image_raw/compressed",
                                          CompressedImage, queue_size=1)
         self.cam_pub = rospy.Publisher(
@@ -94,8 +95,8 @@ class camera_manager_fnct:
         self.subscriber = rospy.Subscriber(
             "/camera1/image_raw/compressed", CompressedImage, self.callback,  queue_size=1)
 
+    # Callback function for the camera image
     def callback(self, ros_data):
-
         global ballsPos, justDetected, closeBall, circCenter, radius
 
         # Convert to cv2
@@ -140,6 +141,7 @@ class camera_manager_fnct:
                     justDetected = -1
                     closeBall = -1
 
+            # Publish info as a camera_msg
             self.to_send.justDetected.data = justDetected
             self.to_send.closeBall.data = closeBall
             self.to_send.radius.data = radius
