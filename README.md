@@ -154,15 +154,11 @@ Explore_lite was used by launching and then stopping the explore.launch file fro
 The user is implemented by the **function user_says** in which he can interact by sending a Play command to the robot, followed by a GoTo command + target location (Entrance, Closet, Living room, Kitchen, Bathroom, Bedroom).
 
 # System's limitations
-Since explore_lite is launched and terminated everytime the dog enters in Normal or Find state, the map is not saved properly. ( at least i bet so, check it later ???)
-
-In order to check if the dog has arrived in the goal position, the code evaluates the odometry output and, if the difference between actual and goal positions is small, all goals sent to MoveBase are cancelled and the dog can switch state. This was implemented because, by using MoveBase only, the code took between 10 and 20 seconds to realize that the dog had arrived. After modifying the MoveBase paramters by trial and error, and still obtaining bad results, I decided to solve the porblem in this way.
-
-The robot recognizes balls just in certain states. In all other cases, even if it sees a ball in front of it, it doesn't recognize nor save the position of the ball.
-
-Because of how the environment is built, the code doesn't account for multiple balls seen at the same moment.
-
-The yaw control of the dog is not implemented. 
+- Since explore_lite is launched and terminated everytime the dog enters in Normal or Find state, the map is not saved properly. ( at least i bet so, check it later ???)
+- In order to check if the dog has arrived in the goal position, the code evaluates the odometry output and, if the difference between actual and goal positions is small, all goals sent to MoveBase are cancelled and the dog can switch state. This was implemented because, by using MoveBase only, the code took between 10 and 20 seconds to realize that the dog had arrived. After modifying the MoveBase paramters by trial and error, and still obtaining bad results, I decided to solve the porblem in this way.
+- The robot recognizes balls just in certain states. In all other cases, even if it sees a ball in front of it, it doesn't recognize nor save the position of the ball.
+- Because of how the environment is built, the code doesn't account for multiple balls seen at the same moment.
+- The yaw control of the dog is not implemented. 
 
 # Author and contacts
 Chiara Saporetti (**chiara.saporetti@gmail.com**)
