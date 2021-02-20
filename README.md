@@ -1,4 +1,4 @@
-Next time: maybe implement the yaw, run for a long time.
+Next time: separate user in other node, run for a long time, create uml.
 
 
 # Software architecture 
@@ -32,7 +32,7 @@ The states will be analyzed in detail in the next section.
 
 # Scripts
 - **State manager**
-  This file implements a ROS node that subscribes to /camera_info, /odom, ... and publishes on /cmd_vel, ...
+  This file implements a ROS node that subscribes to **/camera_info**, **/odom** and publishes on **/cmd_vel**.
   It implements a smach machine where different states are described:
 
   - **sleep** : Dog goes to kennel via MoveBase, stays still for a few seconds, then enters the Normal behaviour.
@@ -49,7 +49,7 @@ The states will be analyzed in detail in the next section.
    
 
 - **Camera_manager**
-  This file implements a ROS node that subscribes to /camera1/image_raw/compressed,  ... and publishes on /output/image_raw/compressed, /camera_info, ...
+  This file implements a ROS node that subscribes to **/camera1/image_raw/compressed** and publishes on **/output/image_raw/compressed**, **/camera_info**.
 
   The camera was used by implementing cv bridge in class camera_manager_fnct. 
   It subscribes to /camera1/image_raw/compressed to receive images and publishes on /output/image_raw/compressed to show them.
@@ -63,6 +63,17 @@ The states will be analyzed in detail in the next section.
 
 
 # Installation and running procedure
+## Installation
+Download the package in your_catkin_ws/src folder. 
+```sh
+cd "Your catkin workspace"/src/exp_assignment3
+chmod +x install.sh
+./install.sh
+```
+## Running procedure
+```sh
+roslaunch exp_assignment3 exp3.launch
+```
 
 # System's features
 ## Vision though camera: OpenCV
@@ -129,20 +140,29 @@ The move_base package provides an implementation of an action that, given a goal
   - clear costmap recovery (set local costmap state to the same of global)
   - rotate recovery (rotate of 360°)
 
-## Explore autonomously: explore-lite package (+moveBase)
+
+In this project, MoveBase was used by creating a simple action client with a MoveBaseAction in the **function move_dog**. This function first sets the right angle towards the target by directly publishing on the cmd_vel topic, then calls the MoveBase service to go there. MoveBase assures obstacle avoidance but works better if the angle is previously set. This means that I firstly set the angle so that the robot faces the goal, then I ask MoveBase service to go to that position. 
+
+## Explore autonomously: explore-lite package
 http://wiki.ros.org/explore_lite
 
 It implements a greedy frontier based exploration: explore greedily until no frontiers can be found, by sending goals to moveBase server.
-
-## More
 Explore_lite was used by launching and then stopping the explore.launch file from within the states that needed it.
 
-MoveBase was used by creating a simple action client with a MoveBaseAction in the **function move_dog**. This function first sets the right angle towards the target by directly publishing on the cmd_vel topic, then calls the MoveBase service to go there. MoveBase assures obstacle avoidance but works better if the angle is previously set (problems in moving towards the human during play). 
+## Other important features
 
-The camera info is read by subscribing to the topic camera_info, and the odometry is read by subscribing to the topic odom.
-
-The user is implemented by the **function user_says** in which he can interact by sending a Play command to the robot, followed by a GoTo command + target location (Entrance, Closet, Living room, Kitchen, Bathroom, Bedroom)
+The user is implemented by the **function user_says** in which he can interact by sending a Play command to the robot, followed by a GoTo command + target location (Entrance, Closet, Living room, Kitchen, Bathroom, Bedroom).
 
 # System's limitations
-# Author and contects
-chiara.saporetti@gmail.com
+Since explore_lite is launched and terminated everytime the dog enters in Normal or Find state, the map is not saved properly. ( at least i bet so, check it later ???)
+
+In order to check if the dog has arrived in the goal position, the code evaluates the odometry output and, if the difference between actual and goal positions is small, all goals sent to MoveBase are cancelled and the dog can switch state. This was implemented because, by using MoveBase only, the code took between 10 and 20 seconds to realize that the dog had arrived. After modifying the MoveBase paramters by trial and error, and still obtaining bad results, I decided to solve the porblem in this way.
+
+The robot recognizes balls just in certain states. In all other cases, even if it sees a ball in front of it, it doesn't recognize nor save the position of the ball.
+
+Because of how the environment is built, the code doesn't account for multiple balls seen at the same moment.
+
+The yaw control of the dog is not implemented. 
+
+# Author and contacts
+Chiara Saporetti (**chiara.saporetti@gmail.com**)
