@@ -1,6 +1,0 @@
-geometry_msgs/PoseStamped target_pose
----
-uint32 reached_position
----
-string stat
-geometry_msgs/Pose position
