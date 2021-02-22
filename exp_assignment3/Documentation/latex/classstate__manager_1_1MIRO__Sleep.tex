@@ -1,0 +1,114 @@
+\hypertarget{classstate__manager_1_1MIRO__Sleep}{}\section{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Sleep Class Reference}
+\label{classstate__manager_1_1MIRO__Sleep}\index{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Sleep@{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Sleep}}
+
+
+Sleep state of the smach machine.  
+
+
+
+
+Inheritance diagram for state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Sleep\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=190pt]{classstate__manager_1_1MIRO__Sleep__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Sleep\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=190pt]{classstate__manager_1_1MIRO__Sleep__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classstate__manager_1_1MIRO__Sleep_a1e0695b96023b2c827bd28d9b0c11bfb}{\+\_\+\+\_\+init\+\_\+\+\_\+} (self)
+\begin{DoxyCompactList}\small\item\em Init function for smach machine sleep state. \end{DoxyCompactList}\item 
+def \hyperlink{classstate__manager_1_1MIRO__Sleep_acda704c667aad40c16f10d7c705b1b2e}{execute} (self, userdata)
+\begin{DoxyCompactList}\small\item\em Execute function of the state\+: \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Sleep state of the smach machine. 
+
+
+
+Definition at line 207 of file state\+\_\+manager.\+py.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Sleep@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Sleep}!\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}!state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Sleep@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Sleep}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+init\+\_\+\+\_\+(self)}{__init__(self)}}]{\setlength{\rightskip}{0pt plus 5cm}def state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Sleep.\+\_\+\+\_\+init\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\hypertarget{classstate__manager_1_1MIRO__Sleep_a1e0695b96023b2c827bd28d9b0c11bfb}{}\label{classstate__manager_1_1MIRO__Sleep_a1e0695b96023b2c827bd28d9b0c11bfb}
+
+
+Init function for smach machine sleep state. 
+
+
+
+Definition at line 210 of file state\+\_\+manager.\+py.
+
+
+\begin{DoxyCode}
+210     \textcolor{keyword}{def }\hyperlink{classstate__manager_1_1MIRO__Sleep_a1e0695b96023b2c827bd28d9b0c11bfb}{\_\_init\_\_}(self):
+211 
+212         smach.State.\_\_init\_\_(self,
+213                              outcomes=[\textcolor{stringliteral}{'normal\_command'}])
+214 
+\end{DoxyCode}
+
+
+\subsection{Member Function Documentation}
+\index{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Sleep@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Sleep}!execute@{execute}}
+\index{execute@{execute}!state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Sleep@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Sleep}}
+\subsubsection[{\texorpdfstring{execute(self, userdata)}{execute(self, userdata)}}]{\setlength{\rightskip}{0pt plus 5cm}def state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Sleep.\+execute (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{userdata}
+\end{DoxyParamCaption}
+)}\hypertarget{classstate__manager_1_1MIRO__Sleep_acda704c667aad40c16f10d7c705b1b2e}{}\label{classstate__manager_1_1MIRO__Sleep_acda704c667aad40c16f10d7c705b1b2e}
+
+
+Execute function of the state\+: 
+
+
+\begin{DoxyItemize}
+\item Go to kennel
+\item Stay still for 5 seconds
+\item Exit N\+O\+R\+M\+AL 
+\end{DoxyItemize}
+
+Definition at line 220 of file state\+\_\+manager.\+py.
+
+
+\begin{DoxyCode}
+220     \textcolor{keyword}{def }\hyperlink{classstate__manager_1_1MIRO__Sleep_acda704c667aad40c16f10d7c705b1b2e}{execute}(self, userdata):
+221         \textcolor{keyword}{global} lastDetected
+222         rospy.logerr(\textcolor{stringliteral}{'sleep'})
+223 
+224         \textcolor{comment}{# Go to kennel}
+225         move\_dog([-5, 6, 0])
+226         time.sleep(1)
+227 
+228         \textcolor{comment}{# Reset previously seen ball variable}
+229         lastDetected = -2
+230 
+231         rospy.logerr(\textcolor{stringliteral}{'exit sleep'})
+232         \textcolor{keywordflow}{return} \textcolor{stringliteral}{'normal\_command'}
+233 
+234 
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+scripts/\hyperlink{state__manager_8py}{state\+\_\+manager.\+py}\end{DoxyCompactItemize}

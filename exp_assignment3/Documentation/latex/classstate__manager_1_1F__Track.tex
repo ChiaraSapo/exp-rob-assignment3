@@ -1,0 +1,143 @@
+\hypertarget{classstate__manager_1_1F__Track}{}\section{state\+\_\+manager.\+F\+\_\+\+Track Class Reference}
+\label{classstate__manager_1_1F__Track}\index{state\+\_\+manager.\+F\+\_\+\+Track@{state\+\_\+manager.\+F\+\_\+\+Track}}
+
+
+Find track state of the smach machine.  
+
+
+
+
+Inheritance diagram for state\+\_\+manager.\+F\+\_\+\+Track\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=200pt]{classstate__manager_1_1F__Track__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for state\+\_\+manager.\+F\+\_\+\+Track\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=200pt]{classstate__manager_1_1F__Track__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classstate__manager_1_1F__Track_ac6f957f5489c5115b2ba081448e48d35}{\+\_\+\+\_\+init\+\_\+\+\_\+} (self)
+\begin{DoxyCompactList}\small\item\em Init function for smach machine normal state. \end{DoxyCompactList}\item 
+def \hyperlink{classstate__manager_1_1F__Track_a95092e7c2a18a5eb83078ee9ccdfc07e}{execute} (self, userdata)
+\begin{DoxyCompactList}\small\item\em Execute function of the state\+: \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Find track state of the smach machine. 
+
+
+
+Definition at line 467 of file state\+\_\+manager.\+py.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{state\+\_\+manager\+::\+F\+\_\+\+Track@{state\+\_\+manager\+::\+F\+\_\+\+Track}!\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}!state\+\_\+manager\+::\+F\+\_\+\+Track@{state\+\_\+manager\+::\+F\+\_\+\+Track}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+init\+\_\+\+\_\+(self)}{__init__(self)}}]{\setlength{\rightskip}{0pt plus 5cm}def state\+\_\+manager.\+F\+\_\+\+Track.\+\_\+\+\_\+init\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\hypertarget{classstate__manager_1_1F__Track_ac6f957f5489c5115b2ba081448e48d35}{}\label{classstate__manager_1_1F__Track_ac6f957f5489c5115b2ba081448e48d35}
+
+
+Init function for smach machine normal state. 
+
+
+
+Definition at line 470 of file state\+\_\+manager.\+py.
+
+
+\begin{DoxyCode}
+470     \textcolor{keyword}{def }\hyperlink{classstate__manager_1_1F__Track_ac6f957f5489c5115b2ba081448e48d35}{\_\_init\_\_}(self):
+471 
+472         smach.State.\_\_init\_\_(self,
+473                              outcomes=[\textcolor{stringliteral}{'find\_command'}, \textcolor{stringliteral}{'play\_command'}])
+474 
+\end{DoxyCode}
+
+
+\subsection{Member Function Documentation}
+\index{state\+\_\+manager\+::\+F\+\_\+\+Track@{state\+\_\+manager\+::\+F\+\_\+\+Track}!execute@{execute}}
+\index{execute@{execute}!state\+\_\+manager\+::\+F\+\_\+\+Track@{state\+\_\+manager\+::\+F\+\_\+\+Track}}
+\subsubsection[{\texorpdfstring{execute(self, userdata)}{execute(self, userdata)}}]{\setlength{\rightskip}{0pt plus 5cm}def state\+\_\+manager.\+F\+\_\+\+Track.\+execute (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{userdata}
+\end{DoxyParamCaption}
+)}\hypertarget{classstate__manager_1_1F__Track_a95092e7c2a18a5eb83078ee9ccdfc07e}{}\label{classstate__manager_1_1F__Track_a95092e7c2a18a5eb83078ee9ccdfc07e}
+
+
+Execute function of the state\+: 
+
+
+\begin{DoxyItemize}
+\item Go close to the ball\+: is it the desired position? (no need to check if saved\+: u enter here only if it\textquotesingle{}s not)
+\begin{DoxyItemize}
+\item Yes\+: exit P\+L\+AY
+\item No\+: exit F\+I\+ND 
+\end{DoxyItemize}
+\end{DoxyItemize}
+
+Definition at line 480 of file state\+\_\+manager.\+py.
+
+
+\begin{DoxyCode}
+480     \textcolor{keyword}{def }\hyperlink{classstate__manager_1_1F__Track_a95092e7c2a18a5eb83078ee9ccdfc07e}{execute}(self, userdata):
+481         \textcolor{keyword}{global} moveTo, vel\_pub, closeBall, justDetected, position\_, ballsPos, desiredRoom
+482 
+483         rospy.logerr(\textcolor{stringliteral}{'f\_track'})
+484 
+485         \textcolor{comment}{# Move closer to the ball}
+486         \textcolor{keywordflow}{while} closeBall == -1:
+487             vel\_to\_ball.angular.z = -0.002*(circCenter-400)
+488             vel\_to\_ball.linear.x = -0.01*(radius-100)
+489             vel\_pub.publish(vel\_to\_ball)
+490 
+491         \textcolor{comment}{# Stop dog}
+492         rospy.logerr(\textcolor{stringliteral}{'Stopping in front of ball'})
+493         \textcolor{keywordflow}{for} i \textcolor{keywordflow}{in} range(0, 3):
+494             vel\_to\_ball.linear.x = 0
+495             vel\_pub.publish(vel\_to\_ball)
+496 
+497         \textcolor{comment}{# If the ball is the one the human asked for, go back to play...}
+498         \textcolor{keywordflow}{if} colorName[justDetected] == colorName[desiredRoom]:
+499             rospy.logerr(\textcolor{stringliteral}{'I found the right ball'})
+500 
+501             \textcolor{comment}{# If not saved yet, save ball's position}
+502             \textcolor{keywordflow}{if} ballsPos[justDetected] == [0, 0]:
+503                 ballsPos[justDetected] = [position\_.x, position\_.y]
+504                 rospy.logerr(
+505                     \textcolor{stringliteral}{'Saved position of the %s ball, will not forget it!'}, colors[justDetected])
+506 
+507             \textcolor{keywordflow}{return} \textcolor{stringliteral}{'play\_command'}
+508 
+509         \textcolor{comment}{# ... if it is not, save its position anyway}
+510         \textcolor{keywordflow}{else}:
+511             rospy.logerr(
+512                 \textcolor{stringliteral}{'I found the wrong ball'})
+513 
+514             \textcolor{comment}{# If not saved yet, save ball's position}
+515             \textcolor{keywordflow}{if} ballsPos[justDetected] == [0, 0]:
+516                 ballsPos[justDetected] = [position\_.x, position\_.y]
+517                 rospy.logerr(
+518                     \textcolor{stringliteral}{'Saved position of the %s ball anyway, may turn out useful'}, colors[justDetected])
+519 
+520             \textcolor{keywordflow}{return} \textcolor{stringliteral}{'find\_command'}
+521 
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+scripts/\hyperlink{state__manager_8py}{state\+\_\+manager.\+py}\end{DoxyCompactItemize}

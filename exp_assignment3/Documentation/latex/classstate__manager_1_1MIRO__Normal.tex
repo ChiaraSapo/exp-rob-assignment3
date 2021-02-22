@@ -1,0 +1,153 @@
+\hypertarget{classstate__manager_1_1MIRO__Normal}{}\section{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Normal Class Reference}
+\label{classstate__manager_1_1MIRO__Normal}\index{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Normal@{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Normal}}
+
+
+Normal state of the smach machine.  
+
+
+
+
+Inheritance diagram for state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Normal\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=190pt]{classstate__manager_1_1MIRO__Normal__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Normal\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=190pt]{classstate__manager_1_1MIRO__Normal__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classstate__manager_1_1MIRO__Normal_a36a3ee79119b52beeebd6ee8c04d9501}{\+\_\+\+\_\+init\+\_\+\+\_\+} (self)
+\begin{DoxyCompactList}\small\item\em Init function for smach machine normal state. \end{DoxyCompactList}\item 
+def \hyperlink{classstate__manager_1_1MIRO__Normal_a4133da39ee6ec170623fc1d457b0729a}{execute} (self, userdata)
+\begin{DoxyCompactList}\small\item\em Execute function of the state\+: \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Normal state of the smach machine. 
+
+
+
+Definition at line 238 of file state\+\_\+manager.\+py.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Normal@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Normal}!\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}!state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Normal@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Normal}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+init\+\_\+\+\_\+(self)}{__init__(self)}}]{\setlength{\rightskip}{0pt plus 5cm}def state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Normal.\+\_\+\+\_\+init\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\hypertarget{classstate__manager_1_1MIRO__Normal_a36a3ee79119b52beeebd6ee8c04d9501}{}\label{classstate__manager_1_1MIRO__Normal_a36a3ee79119b52beeebd6ee8c04d9501}
+
+
+Init function for smach machine normal state. 
+
+
+
+Definition at line 241 of file state\+\_\+manager.\+py.
+
+
+\begin{DoxyCode}
+241     \textcolor{keyword}{def }\hyperlink{classstate__manager_1_1MIRO__Normal_a36a3ee79119b52beeebd6ee8c04d9501}{\_\_init\_\_}(self):
+242 
+243         smach.State.\_\_init\_\_(self,
+244                              outcomes=[\textcolor{stringliteral}{'sleep\_command'}, \textcolor{stringliteral}{'play\_command'}, \textcolor{stringliteral}{'n\_track\_command'}])
+245 
+\end{DoxyCode}
+
+
+\subsection{Member Function Documentation}
+\index{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Normal@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Normal}!execute@{execute}}
+\index{execute@{execute}!state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Normal@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Normal}}
+\subsubsection[{\texorpdfstring{execute(self, userdata)}{execute(self, userdata)}}]{\setlength{\rightskip}{0pt plus 5cm}def state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Normal.\+execute (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{userdata}
+\end{DoxyParamCaption}
+)}\hypertarget{classstate__manager_1_1MIRO__Normal_a4133da39ee6ec170623fc1d457b0729a}{}\label{classstate__manager_1_1MIRO__Normal_a4133da39ee6ec170623fc1d457b0729a}
+
+
+Execute function of the state\+: 
+
+
+\begin{DoxyItemize}
+\item Move around\+: ball?
+\begin{DoxyItemize}
+\item Yes\+: exit N\+\_\+\+T\+R\+A\+CK
+\item No\+: Continue
+\end{DoxyItemize}
+\item Listen to human\+: play command?
+\begin{DoxyItemize}
+\item Yes\+: exit P\+L\+AY
+\item No\+: Continue
+\end{DoxyItemize}
+\item End of the loop\+: exit S\+L\+E\+EP 
+\end{DoxyItemize}
+
+Definition at line 255 of file state\+\_\+manager.\+py.
+
+
+\begin{DoxyCode}
+255     \textcolor{keyword}{def }\hyperlink{classstate__manager_1_1MIRO__Normal_a4133da39ee6ec170623fc1d457b0729a}{execute}(self, userdata):
+256         \textcolor{keyword}{global} justDetected, lastDetected
+257 
+258         rospy.logerr(\textcolor{stringliteral}{'normal'})
+259         time.sleep(2)
+260 
+261         \textcolor{comment}{# Launch explore for autonomous exploration}
+262         command = [\textcolor{stringliteral}{"roslaunch"}, \textcolor{stringliteral}{"explore\_lite"}, \textcolor{stringliteral}{"explore.launch"}]
+263         p = subprocess.Popen(command)
+264 
+265         \textcolor{keywordflow}{for} loops \textcolor{keywordflow}{in} range(0, 10):
+266             time.sleep(1)
+267 
+268             \textcolor{keywordflow}{for} loops2 \textcolor{keywordflow}{in} range(0, LOOPS\_EXPLORE):
+269                 time.sleep(3)
+270 
+271                 \textcolor{comment}{# Check if ball is detected}
+272                 \textcolor{keywordflow}{if} justDetected != -1:
+273                     rospy.logerr(\textcolor{stringliteral}{'a ball was detected'})
+274 
+275                     \textcolor{comment}{# Check if it's a new ball or the same as before}
+276                     \textcolor{keywordflow}{if} justDetected != lastDetected:
+277                         lastDetected = justDetected
+278                         rospy.logerr(\textcolor{stringliteral}{'and it is %s'}, colors[justDetected])
+279 
+280                         \textcolor{comment}{# Go to track state}
+281                         p.terminate()
+282                         time.sleep(7)
+283 
+284                         \textcolor{keywordflow}{return} \textcolor{stringliteral}{'n\_track\_command'}
+285 
+286                     \textcolor{keywordflow}{else}:
+287                         rospy.logerr(\textcolor{stringliteral}{'but i already knew it'})
+288 
+289             \textcolor{comment}{# Listen to user}
+290             \textcolor{keywordflow}{if} user\_says(0) == \textcolor{stringliteral}{'play'}:
+291                 rospy.logerr(\textcolor{stringliteral}{'user said play'})
+292 
+293                 p.terminate()
+294                 time.sleep(7)
+295                 \textcolor{keywordflow}{return} \textcolor{stringliteral}{'play\_command'}
+296 
+297         p.terminate()
+298         time.sleep(7)
+299         \textcolor{keywordflow}{return} \textcolor{stringliteral}{'sleep\_command'}
+300 
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+scripts/\hyperlink{state__manager_8py}{state\+\_\+manager.\+py}\end{DoxyCompactItemize}

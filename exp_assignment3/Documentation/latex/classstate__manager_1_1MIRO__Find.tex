@@ -1,0 +1,132 @@
+\hypertarget{classstate__manager_1_1MIRO__Find}{}\section{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Find Class Reference}
+\label{classstate__manager_1_1MIRO__Find}\index{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Find@{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Find}}
+
+
+Find state of the smach machine.  
+
+
+
+
+Inheritance diagram for state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Find\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=214pt]{classstate__manager_1_1MIRO__Find__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Find\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=214pt]{classstate__manager_1_1MIRO__Find__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classstate__manager_1_1MIRO__Find_a90643d8194779b79c594a23ad6e63e5a}{\+\_\+\+\_\+init\+\_\+\+\_\+} (self)
+\begin{DoxyCompactList}\small\item\em Init function for smach machine normal state. \end{DoxyCompactList}\item 
+def \hyperlink{classstate__manager_1_1MIRO__Find_a05ade27a9bfa1ad11e210be4373ff4a9}{execute} (self, userdata)
+\begin{DoxyCompactList}\small\item\em Execute function of the state\+: \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Find state of the smach machine. 
+
+
+
+Definition at line 421 of file state\+\_\+manager.\+py.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Find@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Find}!\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}!state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Find@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Find}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+init\+\_\+\+\_\+(self)}{__init__(self)}}]{\setlength{\rightskip}{0pt plus 5cm}def state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Find.\+\_\+\+\_\+init\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\hypertarget{classstate__manager_1_1MIRO__Find_a90643d8194779b79c594a23ad6e63e5a}{}\label{classstate__manager_1_1MIRO__Find_a90643d8194779b79c594a23ad6e63e5a}
+
+
+Init function for smach machine normal state. 
+
+
+
+Definition at line 424 of file state\+\_\+manager.\+py.
+
+
+\begin{DoxyCode}
+424     \textcolor{keyword}{def }\hyperlink{classstate__manager_1_1MIRO__Find_a90643d8194779b79c594a23ad6e63e5a}{\_\_init\_\_}(self):
+425 
+426         smach.State.\_\_init\_\_(self,
+427                              outcomes=[\textcolor{stringliteral}{'play\_command'}, \textcolor{stringliteral}{'f\_track\_command'}])
+428 
+\end{DoxyCode}
+
+
+\subsection{Member Function Documentation}
+\index{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Find@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Find}!execute@{execute}}
+\index{execute@{execute}!state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Find@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Find}}
+\subsubsection[{\texorpdfstring{execute(self, userdata)}{execute(self, userdata)}}]{\setlength{\rightskip}{0pt plus 5cm}def state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Find.\+execute (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{userdata}
+\end{DoxyParamCaption}
+)}\hypertarget{classstate__manager_1_1MIRO__Find_a05ade27a9bfa1ad11e210be4373ff4a9}{}\label{classstate__manager_1_1MIRO__Find_a05ade27a9bfa1ad11e210be4373ff4a9}
+
+
+Execute function of the state\+: 
+
+
+\begin{DoxyItemize}
+\item In a loop\+:
+\item Move towards goal (may change it)\+: ball?
+\begin{DoxyItemize}
+\item Yes\+: exit F\+\_\+\+T\+R\+A\+CK
+\item No\+: continue
+\end{DoxyItemize}
+\item End of the loop\+: exit P\+L\+AY 
+\end{DoxyItemize}
+
+Definition at line 436 of file state\+\_\+manager.\+py.
+
+
+\begin{DoxyCode}
+436     \textcolor{keyword}{def }\hyperlink{classstate__manager_1_1MIRO__Find_a05ade27a9bfa1ad11e210be4373ff4a9}{execute}(self, userdata):
+437 
+438         \textcolor{keyword}{global} justDetected
+439 
+440         rospy.logerr(\textcolor{stringliteral}{'find'})
+441 
+442         \textcolor{comment}{# Launch explore for autonomous exploration}
+443         command2 = [\textcolor{stringliteral}{"roslaunch"}, \textcolor{stringliteral}{"explore\_lite"}, \textcolor{stringliteral}{"explore.launch"}]
+444         p = subprocess.Popen(command2)
+445 
+446         \textcolor{keywordflow}{for} loops \textcolor{keywordflow}{in} range(0, 10):
+447             time.sleep(1)
+448 
+449             \textcolor{keywordflow}{for} loops2 \textcolor{keywordflow}{in} range(0, LOOPS\_EXPLORE):
+450                 time.sleep(3)
+451 
+452                 \textcolor{comment}{# Check if ball is detected}
+453                 \textcolor{keywordflow}{if} justDetected != -1:
+454                     rospy.logerr(\textcolor{stringliteral}{'I found something!'})
+455                     p.terminate()
+456                     time.sleep(7)
+457 
+458                     \textcolor{keywordflow}{return} \textcolor{stringliteral}{'f\_track\_command'}
+459 
+460         p.terminate()
+461         time.sleep(7)
+462 
+463         \textcolor{keywordflow}{return} \textcolor{stringliteral}{'play\_command'}
+464 
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+scripts/\hyperlink{state__manager_8py}{state\+\_\+manager.\+py}\end{DoxyCompactItemize}

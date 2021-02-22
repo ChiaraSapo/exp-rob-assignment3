@@ -1,0 +1,158 @@
+\hypertarget{classstate__manager_1_1MIRO__Play}{}\section{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Play Class Reference}
+\label{classstate__manager_1_1MIRO__Play}\index{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Play@{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Play}}
+
+
+Play state of the smach machine.  
+
+
+
+
+Inheritance diagram for state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Play\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=215pt]{classstate__manager_1_1MIRO__Play__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Play\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=215pt]{classstate__manager_1_1MIRO__Play__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classstate__manager_1_1MIRO__Play_a863ae1958460cf6bf33faaba597fc5a2}{\+\_\+\+\_\+init\+\_\+\+\_\+} (self)
+\begin{DoxyCompactList}\small\item\em Init function for smach machine play state. \end{DoxyCompactList}\item 
+def \hyperlink{classstate__manager_1_1MIRO__Play_a781db4be4fcbb313c46097a8fdf06275}{execute} (self, userdata)
+\begin{DoxyCompactList}\small\item\em Execute function of the state\+: \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Play state of the smach machine. 
+
+
+
+Definition at line 350 of file state\+\_\+manager.\+py.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Play@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Play}!\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}!state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Play@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Play}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+init\+\_\+\+\_\+(self)}{__init__(self)}}]{\setlength{\rightskip}{0pt plus 5cm}def state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Play.\+\_\+\+\_\+init\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\hypertarget{classstate__manager_1_1MIRO__Play_a863ae1958460cf6bf33faaba597fc5a2}{}\label{classstate__manager_1_1MIRO__Play_a863ae1958460cf6bf33faaba597fc5a2}
+
+
+Init function for smach machine play state. 
+
+
+
+Definition at line 353 of file state\+\_\+manager.\+py.
+
+
+\begin{DoxyCode}
+353     \textcolor{keyword}{def }\hyperlink{classstate__manager_1_1MIRO__Play_a863ae1958460cf6bf33faaba597fc5a2}{\_\_init\_\_}(self):
+354 
+355         smach.State.\_\_init\_\_(self,
+356                              outcomes=[\textcolor{stringliteral}{'normal\_command'}, \textcolor{stringliteral}{'find\_command'}])
+357 
+\end{DoxyCode}
+
+
+\subsection{Member Function Documentation}
+\index{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Play@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Play}!execute@{execute}}
+\index{execute@{execute}!state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Play@{state\+\_\+manager\+::\+M\+I\+R\+O\+\_\+\+Play}}
+\subsubsection[{\texorpdfstring{execute(self, userdata)}{execute(self, userdata)}}]{\setlength{\rightskip}{0pt plus 5cm}def state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Play.\+execute (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{userdata}
+\end{DoxyParamCaption}
+)}\hypertarget{classstate__manager_1_1MIRO__Play_a781db4be4fcbb313c46097a8fdf06275}{}\label{classstate__manager_1_1MIRO__Play_a781db4be4fcbb313c46097a8fdf06275}
+
+
+Execute function of the state\+: 
+
+
+\begin{DoxyItemize}
+\item In a loop\+:
+\item Go to human
+\item Wait for a goto command
+\item Compare command to the known ball positions\+: is position known?
+\begin{DoxyItemize}
+\item Yes\+: go to position
+\item No\+: exit F\+I\+ND
+\end{DoxyItemize}
+\item Wait to be arrived
+\item End of the loop\+: exit N\+O\+R\+M\+AL 
+\end{DoxyItemize}
+
+Definition at line 368 of file state\+\_\+manager.\+py.
+
+
+\begin{DoxyCode}
+368     \textcolor{keyword}{def }\hyperlink{classstate__manager_1_1MIRO__Play_a781db4be4fcbb313c46097a8fdf06275}{execute}(self, userdata):
+369         \textcolor{keyword}{global} moveTo, ballsPos, colorName, justDetected
+370 
+371         rospy.logerr(\textcolor{stringliteral}{'play'})
+372         lastDetected = -2
+373 
+374         \textcolor{keywordflow}{if} ballsPos[0] != [0, 0] \textcolor{keywordflow}{and} ballsPos[1] != [0, 0] \textcolor{keywordflow}{and} ballsPos[2] != [0, 0] \textcolor{keywordflow}{and} ballsPos[3] != [0,
+       0] \textcolor{keywordflow}{and} ballsPos[4] != [0, 0] \textcolor{keywordflow}{and} ballsPos[5] != [0, 0]:
+375             rospy.logerr(\textcolor{stringliteral}{'ALL BALLS HAVE BEEN DETECTED! Positions:'})
+376             rospy.logerr(ballsPos)
+377 
+378         \textcolor{keywordflow}{for} loops \textcolor{keywordflow}{in} range(0, 10):
+379 
+380             \textcolor{comment}{# Move to the human, unless dog is already near him}
+381             rospy.logerr(\textcolor{stringliteral}{'moving to human'})
+382             \textcolor{keywordflow}{if} (position\_.x > -7 \textcolor{keywordflow}{or} position\_.x < -3) \textcolor{keywordflow}{and} (position\_.y > 10 \textcolor{keywordflow}{or} position\_.y < 6):
+383                 \textcolor{comment}{#move\_dog([-5, 8, 0])}
+384                 time.sleep(1)
+385 
+386                 \textcolor{comment}{# Listen to human}
+387             rospy.logerr(\textcolor{stringliteral}{'listen to user'})
+388             user\_command = user\_says(1)
+389 
+390             \textcolor{comment}{# Save the desired room}
+391             \textcolor{keywordflow}{if} \textcolor{stringliteral}{'go'} \textcolor{keywordflow}{in} user\_command \textcolor{keywordflow}{and} \textcolor{stringliteral}{'to'} \textcolor{keywordflow}{in} user\_command:
+392                 \textcolor{keywordflow}{for} i \textcolor{keywordflow}{in} range(0, 6):
+393                     \textcolor{keywordflow}{if} colorName[i] \textcolor{keywordflow}{in} user\_command:
+394                         desiredRoom = i
+395                         \textcolor{keywordflow}{break}
+396 
+397             \textcolor{keywordflow}{else}:
+398                 rospy.logerr(\textcolor{stringliteral}{'Wrong command received'})
+399                 \textcolor{keywordflow}{return} \textcolor{stringliteral}{'normal\_command'}
+400 
+401             rospy.logerr(\textcolor{stringliteral}{'user said to go to %s which is color %s'},
+402                          colorName[desiredRoom], colors[desiredRoom])
+403 
+404             \textcolor{comment}{# If position of room (i.e. ball) is known, go there...}
+405             \textcolor{keywordflow}{if} ballsPos[desiredRoom] != [0, 0]:
+406                 rospy.logerr(
+407                     \textcolor{stringliteral}{'i know this ball! i will go to it right away! it is in'})
+408                 moveTo = np.append(np.asarray(ballsPos[desiredRoom]), 0)
+409                 move\_dog(moveTo)
+410 
+411             \textcolor{comment}{# ... if not: look for it}
+412             \textcolor{keywordflow}{else}:
+413                 rospy.logerr(\textcolor{stringliteral}{'i do not know this position, i will look for it'})
+414                 \textcolor{keywordflow}{return} \textcolor{stringliteral}{'find\_command'}
+415 
+416         \textcolor{keywordflow}{return} \textcolor{stringliteral}{'normal\_command'}
+417 
+418 
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+scripts/\hyperlink{state__manager_8py}{state\+\_\+manager.\+py}\end{DoxyCompactItemize}

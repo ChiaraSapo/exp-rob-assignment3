@@ -1,0 +1,8 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node2" href="$classstate__manager_1_1F__Track.html" title="Find track state of the smach machine. " alt="" coords="117,5,277,32"/>
+<area shape="rect" id="node3" href="$classstate__manager_1_1MIRO__Find.html" title="Find state of the smach machine. " alt="" coords="107,56,286,83"/>
+<area shape="rect" id="node4" href="$classstate__manager_1_1MIRO__Normal.html" title="Normal state of the smach machine. " alt="" coords="123,107,270,149"/>
+<area shape="rect" id="node5" href="$classstate__manager_1_1MIRO__Play.html" title="Play state of the smach machine. " alt="" coords="107,173,287,200"/>
+<area shape="rect" id="node6" href="$classstate__manager_1_1MIRO__Sleep.html" title="Sleep state of the smach machine. " alt="" coords="123,225,270,266"/>
+<area shape="rect" id="node7" href="$classstate__manager_1_1N__Track.html" title="Normal track state of the smach machine. " alt="" coords="115,291,278,317"/>
+</map>

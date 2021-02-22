@@ -1,0 +1,221 @@
+\hypertarget{state__manager_8py}{}\section{scripts/state\+\_\+manager.py File Reference}
+\label{state__manager_8py}\index{scripts/state\+\_\+manager.\+py@{scripts/state\+\_\+manager.\+py}}
+
+
+Manges the dog behaviour states and the human commands.  
+
+
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{classstate__manager_1_1MIRO__Sleep}{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Sleep}
+\begin{DoxyCompactList}\small\item\em Sleep state of the smach machine. \end{DoxyCompactList}\item 
+class \hyperlink{classstate__manager_1_1MIRO__Normal}{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Normal}
+\begin{DoxyCompactList}\small\item\em Normal state of the smach machine. \end{DoxyCompactList}\item 
+class \hyperlink{classstate__manager_1_1N__Track}{state\+\_\+manager.\+N\+\_\+\+Track}
+\begin{DoxyCompactList}\small\item\em Normal track state of the smach machine. \end{DoxyCompactList}\item 
+class \hyperlink{classstate__manager_1_1MIRO__Play}{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Play}
+\begin{DoxyCompactList}\small\item\em Play state of the smach machine. \end{DoxyCompactList}\item 
+class \hyperlink{classstate__manager_1_1MIRO__Find}{state\+\_\+manager.\+M\+I\+R\+O\+\_\+\+Find}
+\begin{DoxyCompactList}\small\item\em Find state of the smach machine. \end{DoxyCompactList}\item 
+class \hyperlink{classstate__manager_1_1F__Track}{state\+\_\+manager.\+F\+\_\+\+Track}
+\begin{DoxyCompactList}\small\item\em Find track state of the smach machine. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{state__manager_8py_a10b92f213f5d87f512d59297dc16b310}{state\+\_\+manager.\+clbk\+\_\+cam} (msg)\hypertarget{state__manager_8py_a10b92f213f5d87f512d59297dc16b310}{}\label{state__manager_8py_a10b92f213f5d87f512d59297dc16b310}
+
+\begin{DoxyCompactList}\small\item\em Callback function for the camera information. \end{DoxyCompactList}\item 
+def \hyperlink{state__manager_8py_aa8789198308cdcb1c68982937dc0325f}{state\+\_\+manager.\+user\+\_\+says} (state\+Calling)\hypertarget{state__manager_8py_aa8789198308cdcb1c68982937dc0325f}{}\label{state__manager_8py_aa8789198308cdcb1c68982937dc0325f}
+
+\begin{DoxyCompactList}\small\item\em Function to simulate the human speaking. \end{DoxyCompactList}\item 
+def \hyperlink{state__manager_8py_ae191ff1e095a04454793707dc8fed298}{state\+\_\+manager.\+clbk\+\_\+odom} (msg)\hypertarget{state__manager_8py_ae191ff1e095a04454793707dc8fed298}{}\label{state__manager_8py_ae191ff1e095a04454793707dc8fed298}
+
+\begin{DoxyCompactList}\small\item\em Callback function for the odometry of the robot. \end{DoxyCompactList}\item 
+def \hyperlink{state__manager_8py_a2642cd588f90cc3c9853d57f04925118}{state\+\_\+manager.\+normalize\+\_\+angle} (angle)\hypertarget{state__manager_8py_a2642cd588f90cc3c9853d57f04925118}{}\label{state__manager_8py_a2642cd588f90cc3c9853d57f04925118}
+
+\begin{DoxyCompactList}\small\item\em Function to normalize the yaw angle. \end{DoxyCompactList}\item 
+def \hyperlink{state__manager_8py_ae0155422a2f60744ea3acf5181c7c75a}{state\+\_\+manager.\+move\+\_\+dog} (target)
+\begin{DoxyCompactList}\small\item\em Function to move the dog to a target position. \end{DoxyCompactList}\item 
+def \hyperlink{state__manager_8py_a8663809bc92b964a1202b8888447a326}{state\+\_\+manager.\+main} ()\hypertarget{state__manager_8py_a8663809bc92b964a1202b8888447a326}{}\label{state__manager_8py_a8663809bc92b964a1202b8888447a326}
+
+\begin{DoxyCompactList}\small\item\em Ros node that subscribes to camera\+\_\+info and odometry. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+list {\bfseries state\+\_\+manager.\+color\+Name}
+\item 
+list {\bfseries state\+\_\+manager.\+colors} = \mbox{[}\textquotesingle{}black\textquotesingle{}, \textquotesingle{}red\textquotesingle{}, \textquotesingle{}yellow\textquotesingle{}, \textquotesingle{}green\textquotesingle{}, \textquotesingle{}blue\textquotesingle{}, \textquotesingle{}magenta\textquotesingle{}\mbox{]}\hypertarget{state__manager_8py_a922042e614c40bebe0f29f4377f01b42}{}\label{state__manager_8py_a922042e614c40bebe0f29f4377f01b42}
+
+\item 
+list {\bfseries state\+\_\+manager.\+black\+Pos} = \mbox{[}0, 0\mbox{]}\hypertarget{state__manager_8py_aa4d3938ac74c8f777a1d8eb656fe7bb0}{}\label{state__manager_8py_aa4d3938ac74c8f777a1d8eb656fe7bb0}
+
+\item 
+list {\bfseries state\+\_\+manager.\+red\+Pos} = \mbox{[}0, 0\mbox{]}\hypertarget{state__manager_8py_ae0d8da1e5a3eb50004cb82db23cfe8e8}{}\label{state__manager_8py_ae0d8da1e5a3eb50004cb82db23cfe8e8}
+
+\item 
+list {\bfseries state\+\_\+manager.\+yellow\+Pos} = \mbox{[}0, 0\mbox{]}\hypertarget{state__manager_8py_a0b4119ef62fc8992409a95acaa413133}{}\label{state__manager_8py_a0b4119ef62fc8992409a95acaa413133}
+
+\item 
+list {\bfseries state\+\_\+manager.\+green\+Pos} = \mbox{[}0, 0\mbox{]}\hypertarget{state__manager_8py_ac90c0e9d4c30036629ea626868596af4}{}\label{state__manager_8py_ac90c0e9d4c30036629ea626868596af4}
+
+\item 
+list {\bfseries state\+\_\+manager.\+blue\+Pos} = \mbox{[}0, 0\mbox{]}\hypertarget{state__manager_8py_afb13d54268c086336e256dfbaad0d1be}{}\label{state__manager_8py_afb13d54268c086336e256dfbaad0d1be}
+
+\item 
+list {\bfseries state\+\_\+manager.\+magenta\+Pos} = \mbox{[}0, 0\mbox{]}\hypertarget{state__manager_8py_a8d1f33ece2a36276622cb4f8b716ed1c}{}\label{state__manager_8py_a8d1f33ece2a36276622cb4f8b716ed1c}
+
+\item 
+list {\bfseries state\+\_\+manager.\+balls\+Pos} = \mbox{[}black\+Pos, red\+Pos, yellow\+Pos, green\+Pos, blue\+Pos, magenta\+Pos\mbox{]}\hypertarget{state__manager_8py_aaa8c763e4fcef5460ec62aafbc9ac1ac}{}\label{state__manager_8py_aaa8c763e4fcef5460ec62aafbc9ac1ac}
+
+\item 
+int {\bfseries state\+\_\+manager.\+just\+Detected} = -\/1\hypertarget{state__manager_8py_afe71213bef1457af133e995ae8e89cf7}{}\label{state__manager_8py_afe71213bef1457af133e995ae8e89cf7}
+
+\item 
+int {\bfseries state\+\_\+manager.\+close\+Ball} = -\/1\hypertarget{state__manager_8py_a265a4ceebb76d5ed8ab531b56a9840c8}{}\label{state__manager_8py_a265a4ceebb76d5ed8ab531b56a9840c8}
+
+\item 
+int {\bfseries state\+\_\+manager.\+desired\+Room} = -\/1\hypertarget{state__manager_8py_aa3dc2e46764eb3a8533ff084e960ca56}{}\label{state__manager_8py_aa3dc2e46764eb3a8533ff084e960ca56}
+
+\item 
+int {\bfseries state\+\_\+manager.\+last\+Detected} = -\/2\hypertarget{state__manager_8py_af0f8b36f6452126a13d82ab1d19ec3cc}{}\label{state__manager_8py_af0f8b36f6452126a13d82ab1d19ec3cc}
+
+\item 
+int {\bfseries state\+\_\+manager.\+L\+O\+O\+P\+S\+\_\+\+E\+X\+P\+L\+O\+RE} = 20\hypertarget{state__manager_8py_a57e2d135527d81f9829dc7bfdb190077}{}\label{state__manager_8py_a57e2d135527d81f9829dc7bfdb190077}
+
+\item 
+{\bfseries state\+\_\+manager.\+position\+\_\+} = Point()\hypertarget{state__manager_8py_ac76fcb179cfa6a83beadd27948a07c75}{}\label{state__manager_8py_ac76fcb179cfa6a83beadd27948a07c75}
+
+\item 
+{\bfseries state\+\_\+manager.\+pose\+\_\+} = Pose()\hypertarget{state__manager_8py_ae34942bd07e8be3516ecf8d2b684f86f}{}\label{state__manager_8py_ae34942bd07e8be3516ecf8d2b684f86f}
+
+\item 
+int {\bfseries state\+\_\+manager.\+yaw\+\_\+} = 0\hypertarget{state__manager_8py_a07c3190cd1bf464f1a95c195764ec658}{}\label{state__manager_8py_a07c3190cd1bf464f1a95c195764ec658}
+
+\item 
+float {\bfseries state\+\_\+manager.\+yaw\+\_\+precision\+\_\+2\+\_\+} = 0.\+5\hypertarget{state__manager_8py_a54d071d5ed8358ee53a70ba15ba59fa2}{}\label{state__manager_8py_a54d071d5ed8358ee53a70ba15ba59fa2}
+
+\item 
+list {\bfseries state\+\_\+manager.\+move\+To} = \mbox{[}0, 0, 0\mbox{]}\hypertarget{state__manager_8py_a715b8f8103bafc082f0e8547b2d010cc}{}\label{state__manager_8py_a715b8f8103bafc082f0e8547b2d010cc}
+
+\item 
+{\bfseries state\+\_\+manager.\+vel\+\_\+pub} = rospy.\+Publisher(\char`\"{}/cmd\+\_\+vel\char`\"{}, Twist, queue\+\_\+size=1)\hypertarget{state__manager_8py_affa389297adfafddfa44cde69dfd3c2d}{}\label{state__manager_8py_affa389297adfafddfa44cde69dfd3c2d}
+
+\item 
+{\bfseries state\+\_\+manager.\+vel\+\_\+to\+\_\+ball} = Twist()\hypertarget{state__manager_8py_a227a8082ac335bc8bcc65bbf9847f847}{}\label{state__manager_8py_a227a8082ac335bc8bcc65bbf9847f847}
+
+\item 
+{\bfseries state\+\_\+manager.\+x}\hypertarget{state__manager_8py_a73b67913ce33b2f8a7b6ab9fdc2b4ac3}{}\label{state__manager_8py_a73b67913ce33b2f8a7b6ab9fdc2b4ac3}
+
+\item 
+{\bfseries state\+\_\+manager.\+y}\hypertarget{state__manager_8py_a71dbeef873718c59636bb7c58e163b5c}{}\label{state__manager_8py_a71dbeef873718c59636bb7c58e163b5c}
+
+\item 
+{\bfseries state\+\_\+manager.\+z}\hypertarget{state__manager_8py_a25495477e014402a47b01810bbb54416}{}\label{state__manager_8py_a25495477e014402a47b01810bbb54416}
+
+\item 
+int {\bfseries state\+\_\+manager.\+radius} = 0\hypertarget{state__manager_8py_acb974cb10e7943ddeacebed01c883d15}{}\label{state__manager_8py_acb974cb10e7943ddeacebed01c883d15}
+
+\item 
+int {\bfseries state\+\_\+manager.\+circ\+Center} = 0\hypertarget{state__manager_8py_a7c25469ab39caa485f115b5ff810e971}{}\label{state__manager_8py_a7c25469ab39caa485f115b5ff810e971}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Manges the dog behaviour states and the human commands. 
+
+
+
+\subsection{Function Documentation}
+\index{state\+\_\+manager.\+py@{state\+\_\+manager.\+py}!move\+\_\+dog@{move\+\_\+dog}}
+\index{move\+\_\+dog@{move\+\_\+dog}!state\+\_\+manager.\+py@{state\+\_\+manager.\+py}}
+\subsubsection[{\texorpdfstring{move\+\_\+dog(target)}{move_dog(target)}}]{\setlength{\rightskip}{0pt plus 5cm}def state\+\_\+manager.\+move\+\_\+dog (
+\begin{DoxyParamCaption}
+\item[{}]{target}
+\end{DoxyParamCaption}
+)}\hypertarget{state__manager_8py_file_ae0155422a2f60744ea3acf5181c7c75a}{}\label{state__manager_8py_file_ae0155422a2f60744ea3acf5181c7c75a}
+
+
+Function to move the dog to a target position. 
+
+It first sets the right yaw angle by directly publishing on the /cmd\+\_\+vel topic then implements a client to the Move\+Base service to move the robot to the target position while avoiding obstacles. 
+
+Definition at line 147 of file state\+\_\+manager.\+py.
+
+
+\begin{DoxyCode}
+147 \textcolor{keyword}{def }move\_dog(target):
+148     \textcolor{keyword}{global} yaw\_, pub, yaw\_precision\_2\_, vel\_pub, position\_
+149 
+150     kp\_a = 3.0
+151     ub\_a = 0.6
+152     lb\_a = -0.5
+153 
+154     rospy.logerr(\textcolor{stringliteral}{'move dog started with data %d %d'}, target[0], target[1])
+155 
+156     \textcolor{comment}{# Adjust yaw angle}
+157     \textcolor{keywordflow}{while} \textcolor{keyword}{True}:
+158         desired\_yaw = math.atan2(
+159             target[1] - position\_.y, target[0] - position\_.x)
+160         err\_yaw = normalize\_angle(desired\_yaw - yaw\_)
+161 
+162         twist\_msg = Twist()
+163 
+164         \textcolor{keywordflow}{if} math.fabs(err\_yaw) > yaw\_precision\_2\_:
+165             twist\_msg.angular.z = kp\_a*err\_yaw
+166             \textcolor{keywordflow}{if} twist\_msg.angular.z > ub\_a:
+167                 twist\_msg.angular.z = ub\_a
+168             \textcolor{keywordflow}{elif} twist\_msg.angular.z < lb\_a:
+169                 twist\_msg.angular.z = lb\_a
+170 
+171         \textcolor{comment}{# Publish velocity directly on cmd\_vel topic}
+172         vel\_pub.publish(twist\_msg)
+173 
+174         \textcolor{keywordflow}{if} math.fabs(err\_yaw) <= yaw\_precision\_2\_:
+175             \textcolor{keywordflow}{break}
+176 
+177     \textcolor{comment}{# Move to target position}
+178     rospy.logerr(\textcolor{stringliteral}{'now set target'})
+179 
+180     \textcolor{comment}{# Call MoveBase service}
+181     client = actionlib.SimpleActionClient(\textcolor{stringliteral}{'move\_base'}, MoveBaseAction)
+182     client.cancel\_goal
+183     client.wait\_for\_server()
+184 
+185     goal = MoveBaseGoal()
+186     goal.target\_pose.header.frame\_id = \textcolor{stringliteral}{"map"}
+187     goal.target\_pose.header.stamp = rospy.Time.now()
+188     goal.target\_pose.pose.position.x = target[0]
+189     goal.target\_pose.pose.position.y = target[1]
+190     goal.target\_pose.pose.position.z = 0
+191     goal.target\_pose.pose.orientation.x = 0
+192     goal.target\_pose.pose.orientation.y = 0
+193     goal.target\_pose.pose.orientation.z = 0
+194     goal.target\_pose.pose.orientation.w = 1.0
+195 
+196     client.send\_goal(goal)
+197 
+198     \textcolor{keywordflow}{while} math.fabs(position\_.x - target[0]) > 0.3 \textcolor{keywordflow}{or} math.fabs(position\_.y - target[1]) > 0.3:
+199         time.sleep(1)
+200     rospy.logerr(\textcolor{stringliteral}{'arrived'})
+201     client.cancel\_all\_goals()
+202     \textcolor{keywordflow}{return} 1
+203 
+204 
+\end{DoxyCode}
+
+
+\subsection{Variable Documentation}
+\index{state\+\_\+manager.\+py@{state\+\_\+manager.\+py}!color\+Name@{color\+Name}}
+\index{color\+Name@{color\+Name}!state\+\_\+manager.\+py@{state\+\_\+manager.\+py}}
+\subsubsection[{\texorpdfstring{color\+Name}{colorName}}]{\setlength{\rightskip}{0pt plus 5cm}list state\+\_\+manager.\+color\+Name}\hypertarget{state__manager_8py_file_a1a31c151159de59b0bd90954a51f4de0}{}\label{state__manager_8py_file_a1a31c151159de59b0bd90954a51f4de0}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+1 = [\textcolor{stringliteral}{'entrance'}, \textcolor{stringliteral}{'closet'}, \textcolor{stringliteral}{'kitchen'},
+2              \textcolor{stringliteral}{'livingRoom'}, \textcolor{stringliteral}{'bedroom'}, \textcolor{stringliteral}{'bathroom'}]
+\end{DoxyCode}
+
+
+Definition at line 36 of file state\+\_\+manager.\+py.
+

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-# @file state_manager.py
-# @brief
+## @file state_manager.py
+## @brief Manges the dog behaviour states and the human commands.
 
 import roslib
 import rospy
@@ -52,6 +52,8 @@ closeBall = -1
 desiredRoom = -1
 lastDetected = -2
 
+LOOPS_EXPLORE = 20
+
 # Robot positions
 position_ = Point()
 pose_ = Pose()
@@ -76,7 +78,7 @@ radius = 0
 circCenter = 0
 
 
-# Callback function for the camera information
+## Callback function for the camera information
 
 def clbk_cam(msg):
     global justDetected, closeBall, radius, circCenter
@@ -86,22 +88,20 @@ def clbk_cam(msg):
     circCenter = msg.circCenter.data
 
 
-# Function to simulate the human speaking
+## Function to simulate the human speaking
 
 def user_says(stateCalling):
 
     # Called from Normal behaviour
     if stateCalling == 0:
-        userVoice = 'play'  # random.choice(['play', ''])
-        rospy.logerr('user said: %s', userVoice)
+        userVoice = random.choice(['play', ''])
+        # rospy.logerr('user said: %s', userVoice)
 
     # Called from Play behaviour
     elif stateCalling == 1:
         i = random.randrange(0, 6)
-        comm = "go to %s" % (colorName[0])
+        comm = "go to %s" % (colorName[i])
         userVoice = comm
-        rospy.logerr('user said to go to %s which is color %s',
-                     colorName[i], colors[i])
 
     else:
         rospy.logerr('user_says function called without input')
@@ -110,7 +110,7 @@ def user_says(stateCalling):
     return userVoice
 
 
-# Callback function for the odometry of the robot
+## Callback function for the odometry of the robot
 
 def clbk_odom(msg):
 
@@ -132,7 +132,7 @@ def clbk_odom(msg):
     yaw_ = euler[2]
 
 
-# Function to normalize the yaw angle
+## Function to normalize the yaw angle
 
 def normalize_angle(angle):
     if(math.fabs(angle) > math.pi):
@@ -140,22 +140,9 @@ def normalize_angle(angle):
     return angle
 
 
-'''
-class check_pos:
-
-    # Callback function for the camera image
-    def check_pos(self, target):
-
-        if math.fabs(position_.x - target[0]) < 0.5 and math.fabs(position_.y - target[1]) < 0.5:
-            rospy.logerr('arrived')
-            client.cancel_all_goals()
-            return 1
-'''
-
-
-# Function to move the dog to a target position. It first sets the right yaw angle
-# by directly publishing on the /cmd_vel topic then implements a client to the
-# MoveBase service to move the robot to the target position while avoiding obstacles.
+## Function to move the dog to a target position. It first sets the right yaw angle
+## by directly publishing on the /cmd_vel topic then implements a client to the
+## MoveBase service to move the robot to the target position while avoiding obstacles.
 
 def move_dog(target):
     global yaw_, pub, yaw_precision_2_, vel_pub, position_
@@ -208,35 +195,27 @@ def move_dog(target):
 
     client.send_goal(goal)
 
-    #wait = client.wait_for_result()
-    # rospy.logerr('aaaaaaaaaaa')
     while math.fabs(position_.x - target[0]) > 0.3 or math.fabs(position_.y - target[1]) > 0.3:
         time.sleep(1)
     rospy.logerr('arrived')
     client.cancel_all_goals()
     return 1
 
-#    if not wait:
-#        rospy.logerr("Action server not available!")
-#        rospy.signal_shutdown("Action server not available!")
-#    else:
-#        return client.get_result()
 
-
-# Sleep state of the smach machine.
+## Sleep state of the smach machine.
 
 class MIRO_Sleep(smach.State):
 
-    # Init function for smach machine sleep state.
+    ## Init function for smach machine sleep state.
     def __init__(self):
 
         smach.State.__init__(self,
                              outcomes=['normal_command'])
 
-    # Execute function of the state:
-    # Go to kennel
-    # Stay still for 5 seconds
-    # Exit NORMAL
+    ## Execute function of the state:
+    ## - Go to kennel
+    ## - Stay still for 5 seconds
+    ## - Exit NORMAL
 
     def execute(self, userdata):
         global lastDetected
@@ -253,25 +232,25 @@ class MIRO_Sleep(smach.State):
         return 'normal_command'
 
 
-# Normal state of the smach machine.
+## Normal state of the smach machine.
 
 
 class MIRO_Normal(smach.State):
 
-    # Init function for smach machine normal state.
+    ## Init function for smach machine normal state.
     def __init__(self):
 
         smach.State.__init__(self,
                              outcomes=['sleep_command', 'play_command', 'n_track_command'])
 
-    # Execute function of the state:
-    # Move around: ball?
-    # - Yes: exit N_TRACK
-    # - No: Continue
-    # Listen to human: play command?
-    # - Yes: exit PLAY
-    # - No: Continue
-    # End of the loop: exit SLEEP
+    ## Execute function of the state:
+    ## - Move around: ball?
+    ## 	- Yes: exit N_TRACK
+    ## 	- No: Continue
+    ## - Listen to human: play command?
+    ## 	- Yes: exit PLAY
+    ## 	- No: Continue
+    ## - End of the loop: exit SLEEP
 
     def execute(self, userdata):
         global justDetected, lastDetected
@@ -279,14 +258,14 @@ class MIRO_Normal(smach.State):
         rospy.logerr('normal')
         time.sleep(2)
 
+        # Launch explore for autonomous exploration
+        command = ["roslaunch", "explore_lite", "explore.launch"]
+        p = subprocess.Popen(command)
+
         for loops in range(0, 10):
             time.sleep(1)
 
-            # Launch explore for autonomous exploration
-            command = ["roslaunch", "explore_lite", "explore.launch"]
-            p = subprocess.Popen(command)
-
-            for loops2 in range(0, 15):
+            for loops2 in range(0, LOOPS_EXPLORE):
                 time.sleep(3)
 
                 # Check if ball is detected
@@ -316,22 +295,24 @@ class MIRO_Normal(smach.State):
                 return 'play_command'
 
         p.terminate()
+        time.sleep(7)
         return 'sleep_command'
 
+## Normal track state of the smach machine.
 
 class N_Track(smach.State):
 
-    # Init function for smach machine normal state.
+    ## Init function for smach machine normal state.
     def __init__(self):
 
         smach.State.__init__(self,
                              outcomes=['normal_command'])
 
-    # Execute function of the state:
-    # Go close to the ball: did you know its position yet?
-    # - Yes: continue
-    # - No: save it
-    # Exit NORMAL
+    ## Execute function of the state:
+    ## - Go close to the ball: did you know its position yet?
+    ## 	- Yes: continue
+    ## 	- No: save it
+    ## - Exit NORMAL
 
     def execute(self, userdata):
         global vel_pub, closeBall, colorName, circCenter
@@ -363,26 +344,26 @@ class N_Track(smach.State):
         return 'normal_command'
 
 
-# Play state of the smach machine.
+## Play state of the smach machine.
 
 
 class MIRO_Play(smach.State):
 
-    # Init function for smach machine play state.
+    ## Init function for smach machine play state.
     def __init__(self):
 
         smach.State.__init__(self,
                              outcomes=['normal_command', 'find_command'])
 
-    # Execute function of the state:
-    # In a loop:
-    # Go to human
-    # Wait for a goto command
-    # Compare command to the known ball positions: is position known?
-    # - Yes: go to position
-    # - No: exit FIND
-    # Wait to be arrived
-    # End of the loop: exit NORMAL
+    ## Execute function of the state:
+    ## - In a loop:
+    ## - Go to human
+    ## - Wait for a goto command
+    ## - Compare command to the known ball positions: is position known?
+    ## 	- Yes: go to position
+    ## 	- No: exit FIND
+    ## - Wait to be arrived
+    ## - End of the loop: exit NORMAL
 
     def execute(self, userdata):
         global moveTo, ballsPos, colorName, justDetected
@@ -399,9 +380,10 @@ class MIRO_Play(smach.State):
             # Move to the human, unless dog is already near him
             rospy.logerr('moving to human')
             if (position_.x > -7 or position_.x < -3) and (position_.y > 10 or position_.y < 6):
-                move_dog([-5, 8, 0])
+                #move_dog([-5, 8, 0])
+                time.sleep(1)
 
-            # Listen to human
+                # Listen to human
             rospy.logerr('listen to user')
             user_command = user_says(1)
 
@@ -415,6 +397,9 @@ class MIRO_Play(smach.State):
             else:
                 rospy.logerr('Wrong command received')
                 return 'normal_command'
+
+            rospy.logerr('user said to go to %s which is color %s',
+                         colorName[desiredRoom], colors[desiredRoom])
 
             # If position of room (i.e. ball) is known, go there...
             if ballsPos[desiredRoom] != [0, 0]:
@@ -431,36 +416,42 @@ class MIRO_Play(smach.State):
         return 'normal_command'
 
 
+## Find state of the smach machine.
+
 class MIRO_Find(smach.State):
 
-    # Init function for smach machine normal state.
+    ## Init function for smach machine normal state.
     def __init__(self):
 
         smach.State.__init__(self,
                              outcomes=['play_command', 'f_track_command'])
 
-    # Execute function of the state:
-    # In a loop:
-    # Move towards goal (may change it): ball?
-    # - Yes: exit F_TRACK
-    # - No: continue
-    # End of the loop: exit PLAY
+    ## Execute function of the state:
+    ## - In a loop:
+    ## - Move towards goal (may change it): ball?
+    ## 	- Yes: exit F_TRACK
+    ## 	- No: continue
+    ## - End of the loop: exit PLAY
 
     def execute(self, userdata):
+
         global justDetected
 
         rospy.logerr('find')
 
+        # Launch explore for autonomous exploration
+        command2 = ["roslaunch", "explore_lite", "explore.launch"]
+        p = subprocess.Popen(command2)
+
         for loops in range(0, 10):
+            time.sleep(1)
 
-            # Launch explore for autonomous exploration
-            command = command = ["roslaunch", "explore_lite", "explore.launch"]
-            p = subprocess.Popen(command)
-
-            for loops2 in range(0, 15):
+            for loops2 in range(0, LOOPS_EXPLORE):
+                time.sleep(3)
 
                 # Check if ball is detected
                 if justDetected != -1:
+                    rospy.logerr('I found something!')
                     p.terminate()
                     time.sleep(7)
 
@@ -471,19 +462,20 @@ class MIRO_Find(smach.State):
 
         return 'play_command'
 
+## Find track state of the smach machine.
 
 class F_Track(smach.State):
 
-    # Init function for smach machine normal state.
+    ## Init function for smach machine normal state.
     def __init__(self):
 
         smach.State.__init__(self,
                              outcomes=['find_command', 'play_command'])
 
-    # Execute function of the state:
-    # Go close to the ball: is it the desired position? (no need to check if saved: u enter here only if it's not)
-    # - Yes: exit PLAY
-    # - No: exit FIND
+    ## Execute function of the state:
+    ## - Go close to the ball: is it the desired position? (no need to check if saved: u enter here only if it's not)
+    ##	 - Yes: exit PLAY
+    ##	 - No: exit FIND
 
     def execute(self, userdata):
         global moveTo, vel_pub, closeBall, justDetected, position_, ballsPos, desiredRoom
@@ -527,7 +519,7 @@ class F_Track(smach.State):
 
             return 'find_command'
 
-
+## Ros node that subscribes to camera_info and odometry
 def main():
 
     rospy.init_node('state_manager')

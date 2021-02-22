@@ -1,0 +1,132 @@
+\hypertarget{classstate__manager_1_1N__Track}{}\section{state\+\_\+manager.\+N\+\_\+\+Track Class Reference}
+\label{classstate__manager_1_1N__Track}\index{state\+\_\+manager.\+N\+\_\+\+Track@{state\+\_\+manager.\+N\+\_\+\+Track}}
+
+
+Normal track state of the smach machine.  
+
+
+
+
+Inheritance diagram for state\+\_\+manager.\+N\+\_\+\+Track\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=202pt]{classstate__manager_1_1N__Track__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for state\+\_\+manager.\+N\+\_\+\+Track\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=202pt]{classstate__manager_1_1N__Track__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classstate__manager_1_1N__Track_aacd27d87838bc14f44bce9006219afe2}{\+\_\+\+\_\+init\+\_\+\+\_\+} (self)
+\begin{DoxyCompactList}\small\item\em Init function for smach machine normal state. \end{DoxyCompactList}\item 
+def \hyperlink{classstate__manager_1_1N__Track_ab05a0c6c37abff9d37e7e233553289d4}{execute} (self, userdata)
+\begin{DoxyCompactList}\small\item\em Execute function of the state\+: \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Normal track state of the smach machine. 
+
+
+
+Definition at line 303 of file state\+\_\+manager.\+py.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{state\+\_\+manager\+::\+N\+\_\+\+Track@{state\+\_\+manager\+::\+N\+\_\+\+Track}!\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+init\+\_\+\+\_\+@{\+\_\+\+\_\+init\+\_\+\+\_\+}!state\+\_\+manager\+::\+N\+\_\+\+Track@{state\+\_\+manager\+::\+N\+\_\+\+Track}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+init\+\_\+\+\_\+(self)}{__init__(self)}}]{\setlength{\rightskip}{0pt plus 5cm}def state\+\_\+manager.\+N\+\_\+\+Track.\+\_\+\+\_\+init\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\hypertarget{classstate__manager_1_1N__Track_aacd27d87838bc14f44bce9006219afe2}{}\label{classstate__manager_1_1N__Track_aacd27d87838bc14f44bce9006219afe2}
+
+
+Init function for smach machine normal state. 
+
+
+
+Definition at line 306 of file state\+\_\+manager.\+py.
+
+
+\begin{DoxyCode}
+306     \textcolor{keyword}{def }\hyperlink{classstate__manager_1_1N__Track_aacd27d87838bc14f44bce9006219afe2}{\_\_init\_\_}(self):
+307 
+308         smach.State.\_\_init\_\_(self,
+309                              outcomes=[\textcolor{stringliteral}{'normal\_command'}])
+310 
+\end{DoxyCode}
+
+
+\subsection{Member Function Documentation}
+\index{state\+\_\+manager\+::\+N\+\_\+\+Track@{state\+\_\+manager\+::\+N\+\_\+\+Track}!execute@{execute}}
+\index{execute@{execute}!state\+\_\+manager\+::\+N\+\_\+\+Track@{state\+\_\+manager\+::\+N\+\_\+\+Track}}
+\subsubsection[{\texorpdfstring{execute(self, userdata)}{execute(self, userdata)}}]{\setlength{\rightskip}{0pt plus 5cm}def state\+\_\+manager.\+N\+\_\+\+Track.\+execute (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{userdata}
+\end{DoxyParamCaption}
+)}\hypertarget{classstate__manager_1_1N__Track_ab05a0c6c37abff9d37e7e233553289d4}{}\label{classstate__manager_1_1N__Track_ab05a0c6c37abff9d37e7e233553289d4}
+
+
+Execute function of the state\+: 
+
+
+\begin{DoxyItemize}
+\item Go close to the ball\+: did you know its position yet?
+\begin{DoxyItemize}
+\item Yes\+: continue
+\item No\+: save it
+\end{DoxyItemize}
+\item Exit N\+O\+R\+M\+AL 
+\end{DoxyItemize}
+
+Definition at line 317 of file state\+\_\+manager.\+py.
+
+
+\begin{DoxyCode}
+317     \textcolor{keyword}{def }\hyperlink{classstate__manager_1_1N__Track_ab05a0c6c37abff9d37e7e233553289d4}{execute}(self, userdata):
+318         \textcolor{keyword}{global} vel\_pub, closeBall, colorName, circCenter
+319 
+320         rospy.logerr(\textcolor{stringliteral}{'N\_track'})
+321         time.sleep(2)
+322 
+323         \textcolor{comment}{# Move closer to the ball}
+324         rospy.logerr(\textcolor{stringliteral}{'Moving closer to ball'})
+325         \textcolor{keywordflow}{while} closeBall == -1:
+326             vel\_to\_ball.angular.z = -0.002*(circCenter-400)
+327             vel\_to\_ball.linear.x = -0.01*(radius-100)
+328             vel\_pub.publish(vel\_to\_ball)
+329 
+330         \textcolor{comment}{# Stop dog}
+331         rospy.logerr(\textcolor{stringliteral}{'Stopping in front of ball'})
+332         \textcolor{keywordflow}{for} i \textcolor{keywordflow}{in} range(0, 3):
+333             vel\_to\_ball.linear.x = 0
+334             vel\_pub.publish(vel\_to\_ball)
+335         time.sleep(3)
+336 
+337         \textcolor{comment}{# If not saved yet, save ball's position}
+338         \textcolor{keywordflow}{if} ballsPos[justDetected] == [0, 0]:
+339             ballsPos[justDetected] = [position\_.x, position\_.y]
+340 
+341             rospy.logerr(\textcolor{stringliteral}{'Saved position of %s ball as %d, %d approximately'},
+342                          colors[justDetected], position\_.x, position\_.y)
+343 
+344         \textcolor{keywordflow}{return} \textcolor{stringliteral}{'normal\_command'}
+345 
+346 
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+scripts/\hyperlink{state__manager_8py}{state\+\_\+manager.\+py}\end{DoxyCompactItemize}
