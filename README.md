@@ -1,18 +1,22 @@
-Next time: separate user in other node, run for a long time, create uml.
-
-
 # Software architecture 
-The general architecture is described by the following image:
-*img*
-Where state_manager implements a state machine represented in the following:
+The general architecture is simply composed by 2 nodes:
+- state_manager node that manages the robot's behavioural states and the human commands.
+- camera_manager node that manages the camera information and extracts relevant information about the balls positioned in te environment.
+The two nodes communicate via a topic (published by camera_manager) on which information is sent. 
+
+The state_manager implements a state machine represented in the following (To visualize it: *rosrun smach_viewer smach_viewer.py*):
 <p align="center">
   <img height="400" width="500" src="https://github.com/ChiaraSapo/exp-rob-assignment3/blob/master/exp_assignment3/images/Screenshot%20from%202020-12-28%2016-05-37.png?raw=true "Title"">
 </p>
 The states will be analyzed in detail in the next section.
 
 # Folders
-# worlds
-- **house2.world** (given, slightly modified): simulation with a custom-built world: an environment divided into 6 rooms. In each room, there is a ball of a different colour. Each colour is therefore associated to a different room. The robot has an initial position of: x = -5.0, y = 8.0, and with a yaw of -1.57 rad. 
+
+# Doumentation
+Latex and html documentation, generated with Doxygen.
+
+# Images
+Screenshots of state machine, environment and maps.
 
 # launch 
 - **exp3**: launches the useful launch files.
@@ -20,15 +24,14 @@ The states will be analyzed in detail in the next section.
 - **move_base**: implements movebase.
 - **sim_w1**: creates the gazebo enviroment.
 
-# urdf 
-- human.urdf (given)
-- robot.gazebo and robot.xacro: describe a robot dog with a differential drive control for the two wheels and a fixed head. As sensors it has a hokuyo laser sensor and a camera.
-
 # msg
 - camera_msg: custom message to send information about the images received from the camera. It comprises:
   - **justDetected** indicates the ball that has just been detected
   - **closeBall** indicates that the ball is close (threshold of proximity was chosen manually)
   - **radius**, **center** of the ball as seen from the camera.
+
+## param
+Costmap and moveBase parameters.
 
 # Scripts
 - **State manager**
@@ -60,6 +63,14 @@ The states will be analyzed in detail in the next section.
   - **radius**, **center** of the ball as seen from the camera.
 
   It then publishes on /camera_info an array of integers that contains, in order: lastDetected, closeBall, radius, center.
+
+# urdf 
+- human.urdf (given)
+- robot.gazebo and robot.xacro: describe a robot dog with a differential drive control for the two wheels and a fixed head. As sensors it has a hokuyo laser sensor and a camera.
+
+
+# worlds
+- **house2.world** (given, slightly modified): simulation with a custom-built world: an environment divided into 6 rooms. In each room, there is a ball of a different colour. Each colour is therefore associated to a different room. The robot has an initial position of: x = -5.0, y = 8.0, and with a yaw of -1.57 rad. 
 
 
 # Installation and running procedure
