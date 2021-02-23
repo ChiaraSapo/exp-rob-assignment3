@@ -88,11 +88,9 @@ Contains the slam_gmapping nodes that provide laser-based SLAM (Simultaneous Loc
 # urdf 
 - human.urdf (given)
 - robot.gazebo and robot.xacro: describe a robot dog with a differential drive control for the two wheels and a fixed head. As sensors it has a hokuyo laser sensor and a camera. 
-
-
-
-**************
-
+<p align="center">
+  <img height="400" width="500" src="https://github.com/ChiaraSapo/exp-rob-assignment3/blob/master/exp_assignment3/images/robot_xacro_page-0001.jpgg?raw=true "Title"">
+</p>
 
 # worlds
 - **house2.world** (given, slightly modified): simulation with a custom-built world: an environment divided into 6 rooms. In each room, there is a ball of a different colour. Each colour is therefore associated to a different room. The robot has an initial position of: x = -5.0, y = 8.0, and with a yaw of -1.57 rad. 
