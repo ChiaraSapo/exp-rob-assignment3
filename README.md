@@ -1,11 +1,17 @@
 # Experimental robotics final assignment 
-This repository contains two packages. The explore package (https://github.com/CarmineD8/m-explore), which is a ROS package for robot exploration, and my package exp_asssignment3, which simulates a robot moving in a complex environment composed of multiple rooms charachterized by differently colored balls.
+This repository contains two packages. The explore package (https://github.com/CarmineD8/m-explore), which is a ROS package for robot exploration, and my package exp_asssignment3, which simulates a robot moving in a complex environment composed of multiple rooms charachterized by differently colored balls. The correlation between balls and rooms is:
+- Blue : Entrance
+- Red: Closet
+- Green: Living Room
+- Yellow : Kitchen
+- Orange: Bathroom
+- Black: Bedroom
+
 <p align="center">
   <img height="400" width="500" src="https://github.com/ChiaraSapo/exp-rob-assignment3/blob/master/exp_assignment3/images/Screenshot%20from%202021-02-16%2016-25-48.png?raw=true "Title"">
 </p>
 
-
-The robot is a dog that moves on two wheels with differential drive control. It perceives the environment through a hokuyo laser sensor and a camera. It can "interact" in a simple way with a human, represented as still in the environment.
+The robot is a dog that moves on two wheels with differential drive control. It perceives the environment through a **hokuyo laser sensor** and a **RGBD camera**. It can "interact" in a simple way with a human, represented as still in the environment.
 
 The dog has different **behavioural states**, the main ones being sleep, normal, play and find:
 - During **sleep**, the dog simply goes to the kennel, stays there for a while then wakes up. 
