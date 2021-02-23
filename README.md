@@ -50,7 +50,14 @@ The states will be analyzed in detail in the next section.
   - **radius**, **center** of the ball as seen from the camera.
 
 ## param
-Costmap and moveBase parameters. They will be better analyzed in a successive section.
+Costmap and moveBase parameters. Some default MoveBase parameters are changed:
+  - sample time = 2
+  - Velocity samples vx, vy (here they are the same), vth . This last one should be chosen higher: rotating is more complicated. Here: vx-vy = 20 , vth = 40. 
+  - cost function to be minimized depends on 3 params 
+    - pdist_scale (dist to endpoint of traj) = 5
+    - gdist_scale (dist endpoint to local goal) = 0
+    - occdist_scale (max obstacle cost along the traj) = 5
+  - yaw goal tolerance (in rad) = 1  - xy goal tolerance (in meters) = 0.3
 
 ## src
 Contains the slam_gmapping nodes that provide laser-based SLAM (Simultaneous Localization and Mapping). They create a 2D occupancy grid map from laser and pose data collected by the mobile robot. 
@@ -64,13 +71,13 @@ Contains the slam_gmapping nodes that provide laser-based SLAM (Simultaneous Loc
 
   - **normal** : In a loop: It starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Normal_track phase. Then the dog listens to human: if it hears a play command it enters in play behaviour. At the end of the loop, if nothing has happened, the dog goes to Sleep.
 
-  - **n_track** : The dog gets close to the ball and checks if it already knew its position. To understand the balls posion and proximity it reads the camera_info data. In case it didn't, it saves the new position. Then it goes back to Normal state.
+  - **n_track** : The dog gets close to the ball and checks if it already knew its position. In case it didn't, it saves the new position. Then it goes back to Normal state. Note: to understand the balls posion and proximity it reads the camera_info data.
 
   - **play** : In a loop: the dog goes to the human, waits for a goto command and, if it hears it, it compares it to the known ball positions to check if it already knows the position the user has said to him. If it knew it, it goes toward that position, and then goes to Normal. However, if it didn't know the room yet, it goes to Find.
 
   - **find** : In a loop: the dog starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Find_track phase. At the end of the loop, if nothing has happened, the dog goes to Play.
 
-  - **f_track** : The dog gets close to the ball and checks if it is the desired ball. To understand the balls posion and proximity it reads the camera_info data. In case it isn't, it saves its position (if needed) and goes back to Find. If it is, it goes to Play.
+  - **f_track** : The dog gets close to the ball and checks if it is the desired ball. In case it isn't, it saves its position (if needed) and goes back to Find. If it is, it goes to Play.
    
 
 - **Camera_manager**
@@ -156,14 +163,7 @@ The move_base package provides an implementation of an action that, given a goal
 Learn more at: http://wiki.ros.org/move_base
 
 
-In this project, MoveBase was used by creating a simple action client with a MoveBaseAction in the **function move_dog**. This function first sets the right angle towards the target by directly publishing on the cmd_vel topic, then it calls the MoveBase service to go there. MoveBase assures obstacle avoidance but I have seen that it works better if the angle is previously set. This means that I firstly set the angle so that the robot faces the goal, then I ask MoveBase service to go to that position. To use this package some of the MoveBase parameters are changed:
-  - sample time = 2
-  - Velocity samples vx, vy (here they are the same), vth . This last one should be chosen higher: rotating is more complicated. Here: vx-vy = 20 , vth = 40. 
-  - cost function to be minimized depends on 3 params 
-    - pdist_scale (dist to endpoint of traj) = 5
-    - gdist_scale (dist endpoint to local goal) = 0
-    - occdist_scale (max obstacle cost along the traj) = 5
-  - yaw goal tolerance (in rad) = 1  - xy goal tolerance (in meters) = 0.3
+In this project, MoveBase was used by creating a simple action client with a MoveBaseAction in the **function move_dog**. This function first sets the right angle towards the target by directly publishing on the cmd_vel topic, then it calls the MoveBase service to go there. MoveBase assures obstacle avoidance but I have seen that it works better if the angle is previously set. This means that I firstly set the angle so that the robot faces the goal, then I ask MoveBase service to go to that position. 
 
 ## Explore autonomously: explore-lite package
 It implements a greedy frontier based exploration: explore greedily until no frontiers can be found, by sending goals to moveBase server.
