@@ -1,3 +1,4 @@
+# Experimental robotics final assignment 
 This repository contains two packages. The explore package (https://github.com/CarmineD8/m-explore), which is a ROS package for robot exploration, and my package exp_asssignment3, which simulates a robot moving in a complex environment composed of multiple rooms charachterized by differently colored balls.
 <p align="center">
   <img height="400" width="500" src="https://github.com/ChiaraSapo/exp-rob-assignment3/blob/master/exp_assignment3/images/Screenshot%20from%202021-02-16%2016-25-48.png?raw=true "Title"">
@@ -6,11 +7,11 @@ This repository contains two packages. The explore package (https://github.com/C
 
 The robot is a dog that moves on two wheels with differential drive control. It perceives the environment through a hokuyo laser sensor and a camera. It can "interact" in a simple way with a human, represented as still in the environment.
 
-The dog has different behavioural states, the main ones being sleep, normal, play and find:
-- During sleep, the dog simply goes to the kennel, stays there for a while then wakes up. 
-- During normal state it wanders around.If it sees a ball it enters a substate track, goes closer to it, and saves the ball's approximate position as its own position. Of course it saves it only if it didn't prevoiusly know the ball's position yet. If it hears the human call him to play, it enters play state. 
-- During play state the dog first goes close to the human, then waits for a command, which must be of type "go to *room*". If the dog knows this room, it goes there, then goes back to the human. If it doesn't, it enters in Find state.
-- During find state, the robot goes around looking for the ball linked to the command room. If it finds any ball during search, it enters substate track: if it is the ball it was looking for, it has succeded in its mission and can re-enter play state. If it isn't, it saves its position and continues in find state. Of course it saves it only if it didn't prevoiusly know the ball's position yet.
+The dog has different **behavioural states**, the main ones being sleep, normal, play and find:
+- During **sleep**, the dog simply goes to the kennel, stays there for a while then wakes up. 
+- During **normal** state it wanders around.If it sees a ball it enters a substate **normal track**, goes closer to it, and saves the ball's approximate position as its own position. Of course it saves it only if it didn't prevoiusly know the ball's position yet. If it hears the human call him to play, it enters play state. 
+- During **play** state the dog first goes close to the human, then waits for a command, which must be of type "go to *room*". If the dog knows this room, it goes there, then goes back to the human. If it doesn't, it enters in Find state.
+- During **find** state, the robot goes around looking for the ball linked to the command room. If it finds any ball during search, it enters substate **find track**: if it is the ball it was looking for, it has succeded in its mission and can re-enter play state. If it isn't, it saves its position and continues in find state. Of course it saves it only if it didn't prevoiusly know the ball's position yet.
 
 To implement these behaviours I used some ROS packages:
 - smach state machine to implement the switch between states
@@ -19,13 +20,13 @@ To implement these behaviours I used some ROS packages:
 - move_base as a local and global planner to reach a goal position with obstacle avoidance
 - explore_lite for autonomous exploration of the environment
 
-The code is written entirely in Python and the ROS version is Kinetic.
+The code is written entirely in Python. I used ROS Kinetic, Rviz (as visualization tool) and Gazebo (as simulation tool).
 
 # Software architecture 
 The general architecture is simply composed by 2 nodes:
 - state_manager node that manages the robot's behavioural states and the human commands.
 - camera_manager node that manages the camera information and extracts relevant information about the balls positioned in te environment.
-- 
+
 The two nodes communicate via a topic (published by camera_manager) on which information is sent. 
 
 The state_manager implements a state machine represented in the following (To visualize it: *rosrun smach_viewer smach_viewer.py*):
@@ -36,13 +37,13 @@ The states will be analyzed in detail in the next section.
 
 # Main folders
 
-# launch 
+## launch 
 - **exp3**: launches the useful launch files.
 - **gmapping**: implements gmapping.
 - **move_base**: implements movebase.
 - **sim_w1**: creates the gazebo enviroment.
 
-# msg
+## msg
 - camera_msg: custom message to send information about the images received from the camera. It comprises:
   - **justDetected** indicates the ball that has just been detected
   - **closeBall** indicates that the ball is close (threshold of proximity was chosen manually)
@@ -54,7 +55,7 @@ Costmap and moveBase parameters. They will be better analyzed in a successive se
 ## src
 Contains the slam_gmapping nodes that provide laser-based SLAM (Simultaneous Localization and Mapping). They create a 2D occupancy grid map from laser and pose data collected by the mobile robot. 
 
-# Scripts
+## Scripts
 - **State manager**
   This file implements a ROS node that subscribes to **/camera_info**, **/odom** and publishes on **/cmd_vel**.
   It implements a smach machine where different states are described:
@@ -85,14 +86,14 @@ Contains the slam_gmapping nodes that provide laser-based SLAM (Simultaneous Loc
 
   It then publishes on /camera_info an array of integers that contains, in order: lastDetected, closeBall, radius, center.
 
-# urdf 
+## urdf 
 - human.urdf (given)
 - robot.gazebo and robot.xacro: describe a robot dog with a differential drive control for the two wheels and a fixed head. As sensors it has a hokuyo laser sensor and a camera. 
 <p align="center">
-  <img height="400" width="500" src="https://github.com/ChiaraSapo/exp-rob-assignment3/blob/master/exp_assignment3/images/robot_xacro_page-0001.jpgg?raw=true "Title"">
+  <img height="400" width="500" src="https://github.com/ChiaraSapo/exp-rob-assignment3/blob/master/exp_assignment3/images/robot_xacro_page-0001.jpg?raw=true "Title"">
 </p>
 
-# worlds
+## worlds
 - **house2.world** (given, slightly modified): simulation with a custom-built world: an environment divided into 6 rooms. In each room, there is a ball of a different colour. Each colour is therefore associated to a different room. The robot has an initial position of: x = -5.0, y = 8.0, and with a yaw of -1.57 rad. 
 
 
