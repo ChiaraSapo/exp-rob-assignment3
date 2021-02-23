@@ -73,13 +73,13 @@ Contains the slam_gmapping nodes that provide laser-based SLAM (Simultaneous Loc
   This file implements a ROS node that subscribes to **/camera_info**, **/odom** and publishes on **/cmd_vel**.
   It implements a smach machine where different states are described:
 
-  - **sleep** : Dog goes to kennel via MoveBase, stays still for a few seconds, then enters the Normal behaviour.
+  - **sleep** : Dog goes to kennel (position chosen in [-5, 6, 0]) via MoveBase, stays still for a few seconds, then enters the Normal behaviour.
 
   - **normal** : In a loop: It starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Normal_track phase. Then the dog listens to human: if it hears a play command it enters in play behaviour. At the end of the loop, if nothing has happened, the dog goes to Sleep.
 
   - **n_track** : The dog gets close to the ball and checks if it already knew its position. In case it didn't, it saves the new position. Then it goes back to Normal state. Note: to understand the balls posion and proximity it reads the camera_info data.
 
-  - **play** : In a loop: the dog goes to the human, waits for a goto command and, if it hears it, it compares it to the known ball positions to check if it already knows the position the user has said to him. If it knew it, it goes toward that position, and then goes to Normal. However, if it didn't know the room yet, it goes to Find.
+  - **play** : In a loop: the dog goes to the human (position chosen in [-5, 8, 0]), waits for a goto command and, if it hears it, it compares it to the known ball positions to check if it already knows the position the user has said to him. If it knew it, it goes toward that position, and then goes to Normal. However, if it didn't know the room yet, it goes to Find.
 
   - **find** : In a loop: the dog starts an autonomous wandering phase via Explore_lite. In the meanwhile it continuously checks whether it sees the ball. In case it actually sees it, it enters in the Find_track phase. At the end of the loop, if nothing has happened, the dog goes to Play.
 
