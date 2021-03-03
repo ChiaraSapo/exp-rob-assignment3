@@ -95,7 +95,7 @@ def user_says(stateCalling):
     # Called from Normal behaviour
     if stateCalling == 0:
         userVoice = random.choice(['play', ''])
-        # rospy.logerr('user said: %s', userVoice)
+        # rospy.loginfo('user said: %s', userVoice)
 
     # Called from Play behaviour
     elif stateCalling == 1:
@@ -104,7 +104,7 @@ def user_says(stateCalling):
         userVoice = comm
 
     else:
-        rospy.logerr('user_says function called without input')
+        rospy.loginfo('user_says function called without input')
         return 0
 
     return userVoice
@@ -151,7 +151,7 @@ def move_dog(target):
     ub_a = 0.6
     lb_a = -0.5
 
-    rospy.logerr('move dog started with data %d %d', target[0], target[1])
+    rospy.loginfo('move dog started with data %d %d', target[0], target[1])
 
     # Adjust yaw angle
     while True:
@@ -175,7 +175,7 @@ def move_dog(target):
             break
 
     # Move to target position
-    rospy.logerr('now set target')
+    rospy.loginfo('now set target')
 
     # Call MoveBase service
     client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
@@ -197,7 +197,7 @@ def move_dog(target):
 
     while math.fabs(position_.x - target[0]) > 0.3 or math.fabs(position_.y - target[1]) > 0.3:
         time.sleep(1)
-    rospy.logerr('arrived')
+    rospy.loginfo('arrived')
     client.cancel_all_goals()
     return 1
 
@@ -219,7 +219,7 @@ class MIRO_Sleep(smach.State):
 
     def execute(self, userdata):
         global lastDetected
-        rospy.logerr('sleep')
+        rospy.loginfo('sleep')
 
         # Go to kennel
         move_dog([-5, 6, 0])
@@ -228,7 +228,7 @@ class MIRO_Sleep(smach.State):
         # Reset previously seen ball variable
         lastDetected = -2
 
-        rospy.logerr('exit sleep')
+        rospy.loginfo('exit sleep')
         return 'normal_command'
 
 
@@ -255,7 +255,7 @@ class MIRO_Normal(smach.State):
     def execute(self, userdata):
         global justDetected, lastDetected
 
-        rospy.logerr('normal')
+        rospy.loginfo('normal')
         time.sleep(2)
 
         # Launch explore for autonomous exploration
@@ -270,12 +270,12 @@ class MIRO_Normal(smach.State):
 
                 # Check if ball is detected
                 if justDetected != -1:
-                    rospy.logerr('a ball was detected')
+                    rospy.loginfo('a ball was detected')
 
                     # Check if it's a new ball or the same as before
                     if justDetected != lastDetected:
                         lastDetected = justDetected
-                        rospy.logerr('and it is %s', colors[justDetected])
+                        rospy.loginfo('and it is %s', colors[justDetected])
 
                         # Go to track state
                         p.terminate()
@@ -284,11 +284,11 @@ class MIRO_Normal(smach.State):
                         return 'n_track_command'
 
                     else:
-                        rospy.logerr('but i already knew it')
+                        rospy.loginfo('but i already knew it')
 
             # Listen to user
             if user_says(0) == 'play':
-                rospy.logerr('user said play')
+                rospy.loginfo('user said play')
 
                 p.terminate()
                 time.sleep(7)
@@ -317,18 +317,18 @@ class N_Track(smach.State):
     def execute(self, userdata):
         global vel_pub, closeBall, colorName, circCenter
 
-        rospy.logerr('N_track')
+        rospy.loginfo('N_track')
         time.sleep(2)
 
         # Move closer to the ball
-        rospy.logerr('Moving closer to ball')
+        rospy.loginfo('Moving closer to ball')
         while closeBall == -1:
             vel_to_ball.angular.z = -0.002*(circCenter-400)
             vel_to_ball.linear.x = -0.01*(radius-100)
             vel_pub.publish(vel_to_ball)
 
         # Stop dog
-        rospy.logerr('Stopping in front of ball')
+        rospy.loginfo('Stopping in front of ball')
         for i in range(0, 3):
             vel_to_ball.linear.x = 0
             vel_pub.publish(vel_to_ball)
@@ -338,7 +338,7 @@ class N_Track(smach.State):
         if ballsPos[justDetected] == [0, 0]:
             ballsPos[justDetected] = [position_.x, position_.y]
 
-            rospy.logerr('Saved position of %s ball as %d, %d approximately',
+            rospy.loginfo('Saved position of %s ball as %d, %d approximately',
                          colors[justDetected], position_.x, position_.y)
 
         return 'normal_command'
@@ -368,23 +368,23 @@ class MIRO_Play(smach.State):
     def execute(self, userdata):
         global moveTo, ballsPos, colorName, justDetected
 
-        rospy.logerr('play')
+        rospy.loginfo('play')
         lastDetected = -2
 
         if ballsPos[0] != [0, 0] and ballsPos[1] != [0, 0] and ballsPos[2] != [0, 0] and ballsPos[3] != [0, 0] and ballsPos[4] != [0, 0] and ballsPos[5] != [0, 0]:
-            rospy.logerr('ALL BALLS HAVE BEEN DETECTED! Positions:')
-            rospy.logerr(ballsPos)
+            rospy.loginfo('ALL BALLS HAVE BEEN DETECTED! Positions:')
+            rospy.loginfo(ballsPos)
 
         for loops in range(0, 10):
 
             # Move to the human, unless dog is already near him
-            rospy.logerr('moving to human')
+            rospy.loginfo('moving to human')
             if (position_.x > -7 or position_.x < -3) and (position_.y > 10 or position_.y < 6):
-                #move_dog([-5, 8, 0])
+                move_dog([-5, 8, 0])
                 time.sleep(1)
 
                 # Listen to human
-            rospy.logerr('listen to user')
+            rospy.loginfo('listen to user')
             user_command = user_says(1)
 
             # Save the desired room
@@ -395,22 +395,22 @@ class MIRO_Play(smach.State):
                         break
 
             else:
-                rospy.logerr('Wrong command received')
+                rospy.loginfo('Wrong command received')
                 return 'normal_command'
 
-            rospy.logerr('user said to go to %s which is color %s',
+            rospy.loginfo('user said to go to %s which is color %s',
                          colorName[desiredRoom], colors[desiredRoom])
 
             # If position of room (i.e. ball) is known, go there...
             if ballsPos[desiredRoom] != [0, 0]:
-                rospy.logerr(
+                rospy.loginfo(
                     'i know this ball! i will go to it right away! it is in')
                 moveTo = np.append(np.asarray(ballsPos[desiredRoom]), 0)
                 move_dog(moveTo)
 
             # ... if not: look for it
             else:
-                rospy.logerr('i do not know this position, i will look for it')
+                rospy.loginfo('i do not know this position, i will look for it')
                 return 'find_command'
 
         return 'normal_command'
@@ -437,7 +437,7 @@ class MIRO_Find(smach.State):
 
         global justDetected
 
-        rospy.logerr('find')
+        rospy.loginfo('find')
 
         # Launch explore for autonomous exploration
         command2 = ["roslaunch", "explore_lite", "explore.launch"]
@@ -451,7 +451,7 @@ class MIRO_Find(smach.State):
 
                 # Check if ball is detected
                 if justDetected != -1:
-                    rospy.logerr('I found something!')
+                    rospy.loginfo('I found something!')
                     p.terminate()
                     time.sleep(7)
 
@@ -480,7 +480,7 @@ class F_Track(smach.State):
     def execute(self, userdata):
         global moveTo, vel_pub, closeBall, justDetected, position_, ballsPos, desiredRoom
 
-        rospy.logerr('f_track')
+        rospy.loginfo('f_track')
 
         # Move closer to the ball
         while closeBall == -1:
@@ -489,32 +489,32 @@ class F_Track(smach.State):
             vel_pub.publish(vel_to_ball)
 
         # Stop dog
-        rospy.logerr('Stopping in front of ball')
+        rospy.loginfo('Stopping in front of ball')
         for i in range(0, 3):
             vel_to_ball.linear.x = 0
             vel_pub.publish(vel_to_ball)
 
         # If the ball is the one the human asked for, go back to play...
         if colorName[justDetected] == colorName[desiredRoom]:
-            rospy.logerr('I found the right ball')
+            rospy.loginfo('I found the right ball')
 
             # If not saved yet, save ball's position
             if ballsPos[justDetected] == [0, 0]:
                 ballsPos[justDetected] = [position_.x, position_.y]
-                rospy.logerr(
+                rospy.loginfo(
                     'Saved position of the %s ball, will not forget it!', colors[justDetected])
 
             return 'play_command'
 
         # ... if it is not, save its position anyway
         else:
-            rospy.logerr(
+            rospy.loginfo(
                 'I found the wrong ball')
 
             # If not saved yet, save ball's position
             if ballsPos[justDetected] == [0, 0]:
                 ballsPos[justDetected] = [position_.x, position_.y]
-                rospy.logerr(
+                rospy.loginfo(
                     'Saved position of the %s ball anyway, may turn out useful', colors[justDetected])
 
             return 'find_command'

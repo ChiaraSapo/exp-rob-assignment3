@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-## @file camera_manager.py
-## @brief Manages the camera, then sends relevant information (related to the ball) of the environment.
+# @file camera_manager.py
+# @brief Manages the camera, then sends relevant information (related to the ball) of the environment.
 
 import roslib
 import rospy
@@ -81,10 +81,10 @@ radius = 0
 circCenter = 0
 
 
-## Class to manage the camera
+# Class to manage the camera
 class camera_manager_fnct:
 
-    ## Init function
+    # Init function
     def __init__(self):
 
         # Init publishers and subscribers
@@ -99,7 +99,7 @@ class camera_manager_fnct:
         self.subscriber = rospy.Subscriber(
             "/camera1/image_raw/compressed", CompressedImage, self.callback,  queue_size=1)
 
-    ## Callback function for the camera image
+    # Callback function for the camera image
     def callback(self, ros_data):
         global ballsPos, justDetected, closeBall, circCenter, radius
 
@@ -159,7 +159,7 @@ class camera_manager_fnct:
             cv2.waitKey(2)
 
 
-## Ros node that subscribes to the target_pos and odom topic and publishes on the cmd_vel topic.
+# Ros node that subscribes to the target_pos and odom topic and publishes on the cmd_vel topic.
 def camera_manager():
 
     rospy.init_node('camera_manager', anonymous=True)
